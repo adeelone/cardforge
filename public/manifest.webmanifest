@@ -1,0 +1,12 @@
+{
+  "name": "CardForge",
+  "short_name": "CardForge",
+  "description": "Design and export print-ready business cards.",
+  "start_url": "/new",
+  "display": "standalone",
+  "background_color": "#f6f1e8",
+  "theme_color": "#1f5f5b",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
