@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+.turbo/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.local
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+*.cardforge.json
