@@ -7,5 +7,7 @@ describe('Inspector', () => {
     render(<Inspector />);
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
     expect(screen.getByText('Export')).toBeInTheDocument();
+    expect(screen.getByText('Layers')).toBeInTheDocument();
+    expect(screen.getByText('Logo & headshot')).toBeInTheDocument();
   });
 });

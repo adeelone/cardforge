@@ -7,7 +7,9 @@ export function CanvasStage() {
   const design = useEditorStore((state) => state.history.present);
   const selectedIds = useEditorStore((state) => state.selectedIds);
   const selectElement = useEditorStore((state) => state.selectElement);
+  const clearSelection = useEditorStore((state) => state.clearSelection);
   const moveSelected = useEditorStore((state) => state.moveSelected);
+  const updateElement = useEditorStore((state) => state.updateElement);
   const [mockup, setMockup] = useState(false);
 
   useEffect(() => {
@@ -33,11 +35,25 @@ export function CanvasStage() {
       </div>
       <div className={`preview-pair ${mockup ? 'mockup' : ''}`}>
         <figure>
-          <CardSvg design={design} side="front" selectedIds={selectedIds} onSelect={selectElement} />
+          <CardSvg
+            design={design}
+            side="front"
+            selectedIds={selectedIds}
+            onSelect={selectElement}
+            onClearSelection={clearSelection}
+            onDragElement={(id, dx, dy) => updateElement(id, { x: Math.round(design.elements.find((element) => element.id === id)!.x + dx), y: Math.round(design.elements.find((element) => element.id === id)!.y + dy) })}
+          />
           <figcaption>Front</figcaption>
         </figure>
         <figure>
-          <CardSvg design={design} side="back" selectedIds={selectedIds} onSelect={selectElement} />
+          <CardSvg
+            design={design}
+            side="back"
+            selectedIds={selectedIds}
+            onSelect={selectElement}
+            onClearSelection={clearSelection}
+            onDragElement={(id, dx, dy) => updateElement(id, { x: Math.round(design.elements.find((element) => element.id === id)!.x + dx), y: Math.round(design.elements.find((element) => element.id === id)!.y + dy) })}
+          />
           <figcaption>Back</figcaption>
         </figure>
       </div>

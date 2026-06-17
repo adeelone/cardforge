@@ -16,7 +16,9 @@ interface EditorStore {
   addContact: () => void;
   removeContact: (id: string) => void;
   selectElement: (id: string, additive?: boolean) => void;
+  clearSelection: () => void;
   updateElement: (id: string, patch: Partial<DesignElement>) => void;
+  addImageAsset: (asset: { name: string; mime: string; dataUrl: string }) => void;
   moveSelected: (dx: number, dy: number) => void;
   reorderElement: (id: string, direction: -1 | 1) => void;
   switchTemplate: (templateId: string) => void;
@@ -81,6 +83,7 @@ export const useEditorStore = create<EditorStore>((set) => ({
     set((state) => commit(state, { ...state.history.present, contacts: state.history.present.contacts.filter((item) => item.id !== id) })),
   selectElement: (id, additive = false) =>
     set((state) => ({ selectedIds: additive ? Array.from(new Set([...state.selectedIds, id])) : [id] })),
+  clearSelection: () => set({ selectedIds: [] }),
   updateElement: (id, patch) =>
     set((state) =>
       commit(state, {
@@ -88,6 +91,37 @@ export const useEditorStore = create<EditorStore>((set) => ({
         elements: state.history.present.elements.map((element) => (element.id === id ? { ...element, ...patch } : element))
       })
     ),
+  addImageAsset: (asset) =>
+    set((state) => {
+      const current = state.history.present;
+      const id = createId('asset');
+      const elementId = createId('image');
+      return {
+        ...commit(state, {
+          ...current,
+          assets: [...current.assets, { id, ...asset }],
+          elements: [
+            ...current.elements,
+            {
+              id: elementId,
+              side: 'front',
+              kind: 'image',
+              label: asset.name,
+              x: 24,
+              y: 24,
+              width: 74,
+              height: 74,
+              rotation: 0,
+              locked: false,
+              hidden: false,
+              z: Math.max(0, ...current.elements.map((element) => element.z)) + 1,
+              assetId: id
+            }
+          ]
+        }),
+        selectedIds: [elementId]
+      };
+    }),
   moveSelected: (dx, dy) =>
     set((state) =>
       commit(state, {

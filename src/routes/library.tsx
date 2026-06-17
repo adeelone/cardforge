@@ -5,6 +5,7 @@ import type { Design } from '../types/design';
 import { deleteDesign, listDesigns, saveDesign } from '../data/repo/designRepo';
 import { createId } from '../lib/id';
 import { downloadText } from '../lib/download';
+import { slugify } from '../lib/id';
 
 export function LibraryRoute() {
   const [designs, setDesigns] = useState<Design[]>([]);
@@ -22,11 +23,34 @@ export function LibraryRoute() {
     await refresh();
   }
 
+  async function importDesign(file: File | null) {
+    if (!file) return;
+    const text = await file.text();
+    const parsed = JSON.parse(text) as Design;
+    const now = new Date().toISOString();
+    await saveDesign({
+      ...parsed,
+      meta: {
+        ...parsed.meta,
+        id: createId('design'),
+        name: parsed.meta?.name ? `${parsed.meta.name} import` : 'Imported business card',
+        slug: slugify(parsed.meta?.name ?? 'imported business card'),
+        createdAt: parsed.meta?.createdAt ?? now,
+        updatedAt: now
+      }
+    });
+    await refresh();
+  }
+
   return (
     <main className="page">
       <header className="page-header">
         <h1>My Designs</h1>
         <p>Stored locally in IndexedDB. Export JSON before clearing browser data.</p>
+        <label className="import-control">
+          Import `.cardforge.json`
+          <input type="file" accept="application/json,.cardforge.json" onChange={(event) => void importDesign(event.target.files?.[0] ?? null)} />
+        </label>
       </header>
       <div className="library-list">
         {designs.length === 0 ? <p className="empty">No saved designs yet. Open the editor and CardForge will save automatically.</p> : null}
