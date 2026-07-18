@@ -7,19 +7,22 @@ import { LibraryRoute } from '../routes/library';
 import { PublicCardRoute } from '../routes/public-card';
 import { SettingsRoute } from '../routes/settings';
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppShell />,
-    children: [
-      { index: true, element: <LandingRoute /> },
-      { path: 'new', element: <EditorRoute mode="new" /> },
-      { path: 'design/:id', element: <EditorRoute mode="existing" /> },
-      { path: 'templates', element: <TemplatesRoute /> },
-      { path: 'library', element: <LibraryRoute /> },
-      { path: 'settings', element: <SettingsRoute /> },
-      { path: 'c/:slug', element: <PublicCardRoute /> },
-      { path: '*', element: <Navigate to="/" replace /> }
-    ]
-  }
-]);
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <AppShell />,
+      children: [
+        { index: true, element: <LandingRoute /> },
+        { path: 'new', element: <EditorRoute mode="new" /> },
+        { path: 'design/:id', element: <EditorRoute mode="existing" /> },
+        { path: 'templates', element: <TemplatesRoute /> },
+        { path: 'library', element: <LibraryRoute /> },
+        { path: 'settings', element: <SettingsRoute /> },
+        { path: 'c/:slug', element: <PublicCardRoute /> },
+        { path: '*', element: <Navigate to="/" replace /> }
+      ]
+    }
+  ],
+  { basename: import.meta.env.BASE_URL }
+);

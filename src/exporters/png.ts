@@ -3,7 +3,7 @@ import type { Design } from '../types/design';
 
 export async function exportPng(design: Design, dpi = 300) {
   const scale = dpi / 96;
-  const svg = exportSideSvg(design, 'front');
+  const svg = await exportSideSvg(design, 'front');
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const image = new Image();

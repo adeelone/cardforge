@@ -13,9 +13,16 @@ npm run dev
 
 Open the local URL printed by Vite and start from `/new`.
 
+For CI or production installs, use:
+
+```bash
+npm ci
+npm run build
+```
+
 ## Stack
 
-- Vite, React 18-compatible React, and TypeScript strict for the app shell.
+- Vite, React 19, and TypeScript strict for the app shell.
 - React Router for routes.
 - Zustand for editor state with immutable history snapshots.
 - SVG primitives for the editor preview and SVG export.
@@ -49,15 +56,24 @@ Optional sync, LLM copy helpers, analytics, and background removal are intention
 
 ### Vercel
 
-Import the GitHub repository, keep the default Vite settings, and set the build command to `npm run build`.
+Import the GitHub repository. `vercel.json` sets the Vite build command, `dist` output directory, and SPA route rewrites.
 
 ### Netlify
 
-Use build command `npm run build` and publish directory `dist`.
+`netlify.toml` sets build command `npm run build`, publish directory `dist`, and SPA fallback redirects.
 
 ### GitHub Pages
 
-Run `npm run build`, then publish `dist` through a Pages workflow or a static hosting action.
+The `Pages` GitHub Actions workflow builds with `GITHUB_PAGES=true`, sets the Vite base path to `/cardforge/`, uploads `dist`, and deploys to GitHub Pages.
+
+### Docker
+
+```bash
+docker build -t cardforge .
+docker run --rm -p 8080:80 cardforge
+```
+
+The bundled nginx config serves static assets with cache headers and falls back to `index.html` for client-side routes.
 
 ## Development
 

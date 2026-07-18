@@ -59,7 +59,7 @@ export function Inspector() {
   async function handleExport(kind: 'pdf' | 'png' | 'svg' | 'vcf' | 'json' | 'qr') {
     if (kind === 'pdf') downloadBlob(await exportPdf(design), `${design.meta.slug}.pdf`);
     if (kind === 'png') downloadBlob(await exportPng(design, 300), `${design.meta.slug}.png`);
-    if (kind === 'svg') downloadText(exportSvgBundle(design), `${design.meta.slug}.svg`, 'image/svg+xml');
+    if (kind === 'svg') downloadText(await exportSvgBundle(design), `${design.meta.slug}.svg`, 'image/svg+xml');
     if (kind === 'vcf') downloadText(createVCard(design), `${design.meta.slug}.vcf`, 'text/vcard');
     if (kind === 'json') downloadText(JSON.stringify(design, null, 2), `${design.meta.slug}.cardforge.json`, 'application/json');
     if (kind === 'qr') {

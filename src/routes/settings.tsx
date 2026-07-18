@@ -11,8 +11,11 @@ export function SettingsRoute() {
 
   async function clearAll() {
     localStorage.clear();
-    const keys = await caches.keys();
-    await Promise.all(keys.map((key) => caches.delete(key)));
+    if ('indexedDB' in window) indexedDB.deleteDatabase('keyval-store');
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    }
     window.location.reload();
   }
 
