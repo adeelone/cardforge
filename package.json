@@ -19,7 +19,7 @@
   "dependencies": {
     "colord": "2.9.3",
     "idb-keyval": "6.2.5",
-    "lucide-react": "1.20.0",
+    "lucide-react": "1.25.0",
     "lz-string": "1.5.0",
     "pdf-lib": "1.17.1",
     "qrcode": "1.5.4",
