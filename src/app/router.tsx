@@ -7,6 +7,8 @@ import { LibraryRoute } from '../routes/library';
 import { PublicCardRoute } from '../routes/public-card';
 import { SettingsRoute } from '../routes/settings';
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
 export const router = createBrowserRouter(
   [
     {
@@ -24,5 +26,5 @@ export const router = createBrowserRouter(
       ]
     }
   ],
-  { basename: import.meta.env.BASE_URL }
+  { basename }
 );
