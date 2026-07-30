@@ -24,9 +24,6 @@ import { CARD_PRESETS } from '../../lib/units';
 import { contrastRatio, paletteFromSeed, passesAA } from '../../lib/contrast';
 import { templates } from '../templates/templates';
 import { useEditorStore } from '../state/store';
-import { exportPdf } from '../../exporters/pdf';
-import { exportPng } from '../../exporters/png';
-import { exportSvgBundle } from '../../exporters/svg';
 import { createVCard } from '../../exporters/vcard';
 import { encodeSharePayload } from '../../exporters/share-link';
 import { downloadBlob, downloadText } from '../../lib/download';
@@ -54,13 +51,23 @@ export function Inspector() {
   const contrast = contrastRatio(design.theme.text, design.theme.surface);
   const palette = paletteFromSeed(design.theme.brand);
   const selectedElement = design.elements.find((element) => element.id === selectedIds[0]);
-  const shareUrl = `${window.location.origin}/c/${design.meta.slug}?d=${encodeSharePayload(design)}`;
 
   async function handleExport(kind: 'pdf' | 'png' | 'svg' | 'vcf' | 'json' | 'qr') {
-    if (kind === 'pdf') downloadBlob(await exportPdf(design), `${design.meta.slug}.pdf`);
-    if (kind === 'png') downloadBlob(await exportPng(design, 300), `${design.meta.slug}.png`);
-    if (kind === 'svg') downloadText(await exportSvgBundle(design), `${design.meta.slug}.svg`, 'image/svg+xml');
-    if (kind === 'vcf') downloadText(createVCard(design), `${design.meta.slug}.vcf`, 'text/vcard');
+    if (kind === 'pdf') {
+      const { exportPdf } = await import('../../exporters/pdf');
+      downloadBlob(await exportPdf(design), `${design.meta.slug}.pdf`);
+    }
+    if (kind === 'png') {
+      const { exportPng } = await import('../../exporters/png');
+      downloadBlob(await exportPng(design, 300), `${design.meta.slug}.png`);
+    }
+    if (kind === 'svg') {
+      const { exportSvgBundle } = await import('../../exporters/svg');
+      downloadText(await exportSvgBundle(design), `${design.meta.slug}.svg`, 'image/svg+xml');
+    }
+    if (kind === 'vcf') {
+      downloadText(createVCard(design), `${design.meta.slug}.vcf`, 'text/vcard');
+    }
     if (kind === 'json') downloadText(JSON.stringify(design, null, 2), `${design.meta.slug}.cardforge.json`, 'application/json');
     if (kind === 'qr') {
       const { default: QRCode } = await import('qrcode');
@@ -83,6 +90,7 @@ export function Inspector() {
   }
 
   async function copyShareUrl() {
+    const shareUrl = `${window.location.origin}/c/${design.meta.slug}?d=${encodeSharePayload(design)}`;
     await navigator.clipboard.writeText(shareUrl);
   }
 
