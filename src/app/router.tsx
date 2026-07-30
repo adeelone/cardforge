@@ -9,22 +9,24 @@ import { SettingsRoute } from '../routes/settings';
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
 
-export const router = createBrowserRouter(
-  [
-    {
-      path: '/',
-      element: <AppShell />,
-      children: [
-        { index: true, element: <LandingRoute /> },
-        { path: 'new', element: <EditorRoute mode="new" /> },
-        { path: 'design/:id', element: <EditorRoute mode="existing" /> },
-        { path: 'templates', element: <TemplatesRoute /> },
-        { path: 'library', element: <LibraryRoute /> },
-        { path: 'settings', element: <SettingsRoute /> },
-        { path: 'c/:slug', element: <PublicCardRoute /> },
-        { path: '*', element: <Navigate to="/" replace /> }
-      ]
-    }
-  ],
-  { basename }
-);
+export function createAppRouter() {
+  return createBrowserRouter(
+    [
+      {
+        path: '/',
+        element: <AppShell />,
+        children: [
+          { index: true, element: <LandingRoute /> },
+          { path: 'new', element: <EditorRoute mode="new" /> },
+          { path: 'design/:id', element: <EditorRoute mode="existing" /> },
+          { path: 'templates', element: <TemplatesRoute /> },
+          { path: 'library', element: <LibraryRoute /> },
+          { path: 'settings', element: <SettingsRoute /> },
+          { path: 'c/:slug', element: <PublicCardRoute /> },
+          { path: '*', element: <Navigate to="/" replace /> }
+        ]
+      }
+    ],
+    { basename }
+  );
+}
