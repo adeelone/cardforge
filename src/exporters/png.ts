@@ -1,17 +1,27 @@
 import { exportSideSvg } from './svg';
-import type { Design } from '../types/design';
+import type { CardSide, Design } from '../types/design';
+import { canvasDims } from '../lib/units';
 
-export async function exportPng(design: Design, dpi = 300) {
+export async function exportPng(design: Design, dpi = 300, side: CardSide = 'front') {
+  // Ensure self-hosted fonts are ready before rasterizing, or text falls back.
+  if ('fonts' in document) {
+    try {
+      await (document as Document & { fonts: FontFaceSet }).fonts.ready;
+    } catch {
+      /* fonts API unavailable in test env */
+    }
+  }
+  const { w, h } = canvasDims(design.card);
   const scale = dpi / 96;
-  const svg = await exportSideSvg(design, 'front');
+  const svg = await exportSideSvg(design, side);
   const blob = new Blob([svg], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   const image = new Image();
   image.src = url;
   await image.decode();
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(336 * scale);
-  canvas.height = Math.round(192 * scale);
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Canvas rendering is not available.');
   context.fillStyle = design.theme.surface;
