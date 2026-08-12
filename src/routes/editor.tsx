@@ -6,12 +6,14 @@ import { useEditorStore } from '../editor/state/store';
 import { createStarterDesign } from '../editor/templates/templates';
 import { getDesign, saveDesign } from '../data/repo/designRepo';
 import { decodeSharePayload } from '../exporters/share-link';
+import { useUnits } from '../app/theme';
 
 export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
   const { id } = useParams();
   const [params] = useSearchParams();
   const design = useEditorStore((state) => state.history.present);
   const setDesign = useEditorStore((state) => state.setDesign);
+  const units = useUnits();
 
   useEffect(() => {
     const shared = params.get('d');
@@ -34,7 +36,7 @@ export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
 
   return (
     <main className="editor-route">
-      <CanvasStage />
+      <CanvasStage units={units} />
       <Inspector />
     </main>
   );

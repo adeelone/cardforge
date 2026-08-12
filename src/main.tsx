@@ -2,7 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { createAppRouter } from './app/router';
+import { ErrorBoundary } from './app/error-boundary';
+import { Toaster } from './app/toaster';
+import { applyTheme } from './app/theme';
+import './styles/fonts.css';
 import './styles/base.css';
+
+// Apply the saved theme before first paint to avoid a flash.
+applyTheme();
 
 const redirect = new URLSearchParams(window.location.search).get('redirect');
 if (redirect) {
@@ -13,7 +20,10 @@ if (redirect) {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={createAppRouter()} />
+    <ErrorBoundary>
+      <RouterProvider router={createAppRouter()} />
+      <Toaster />
+    </ErrorBoundary>
   </React.StrictMode>
 );
 

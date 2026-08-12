@@ -21,3 +21,26 @@ export function presetSize(preset: CardPreset, orientation: Orientation) {
 export function mmToPx(mm: number) {
   return mm * PX_PER_MM;
 }
+
+/** Fixed width of the internal design coordinate space, in canvas units. */
+export const CANVAS_BASE_W = 336;
+
+/**
+ * The canvas/export coordinate space. Width is fixed; height tracks the card's
+ * true aspect ratio so square, portrait, and mini cards render correctly
+ * instead of being forced into a 1.75:1 landscape box.
+ */
+export function canvasDims(card: { widthMm: number; heightMm: number }) {
+  const w = CANVAS_BASE_W;
+  const h = Math.round((CANVAS_BASE_W * card.heightMm) / card.widthMm);
+  return { w, h };
+}
+
+export function formatDimensions(widthMm: number, heightMm: number, units: 'mm' | 'in') {
+  if (units === 'in') {
+    const w = (widthMm / MM_PER_IN).toFixed(2);
+    const h = (heightMm / MM_PER_IN).toFixed(2);
+    return `${w} × ${h} in`;
+  }
+  return `${Math.round(widthMm * 10) / 10} × ${Math.round(heightMm * 10) / 10} mm`;
+}

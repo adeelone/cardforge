@@ -1,5 +1,7 @@
 export type CardSide = 'front' | 'back';
 export type ElementKind = 'text' | 'shape' | 'image' | 'qr';
+export type ShapeKind = 'rect' | 'ellipse' | 'line';
+export type TextRole = 'name' | 'title' | 'company' | 'body' | 'custom';
 export type Density = 'compact' | 'regular' | 'airy';
 export type Alignment = 'left' | 'center' | 'right';
 export type CardPreset = 'us' | 'eu' | 'jp' | 'uk' | 'square' | 'mini';
@@ -62,12 +64,25 @@ export interface DesignElement {
   locked: boolean;
   hidden: boolean;
   z: number;
+  opacity?: number;
+  // text
   text?: string;
+  role?: TextRole;
   fill?: string;
   stroke?: string;
   fontSize?: number;
   fontFamily?: string;
+  fontWeight?: number;
+  align?: Alignment;
+  letterSpacing?: number;
+  // shape
+  shape?: ShapeKind;
+  radius?: number;
+  gradient?: [string, string];
+  strokeWidth?: number;
+  // qr
   qrMode?: 'vcard' | 'url' | 'digital';
+  // image
   assetId?: string;
 }
 

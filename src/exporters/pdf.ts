@@ -1,13 +1,18 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import QRCode from 'qrcode';
 import type { CardSide, Design, DesignElement } from '../types/design';
-import { interpolateText } from '../editor/canvas/render-text';
+import { layoutText } from '../editor/canvas/render-text';
+import { canvasDims } from '../lib/units';
+import { createVCard } from './vcard';
 
 const PT_PER_MM = 72 / 25.4;
 
 function hexToRgb(hex: string) {
   const normalized = hex.replace('#', '');
-  const value = Number.parseInt(normalized.length === 3 ? normalized.split('').map((char) => char + char).join('') : normalized, 16);
+  const value = Number.parseInt(
+    normalized.length === 3 ? normalized.split('').map((char) => char + char).join('') : normalized.slice(0, 6),
+    16
+  );
   return rgb(((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255);
 }
 
@@ -29,18 +34,10 @@ function drawCropMarks(page: import('pdf-lib').PDFPage, bleed: number, width: nu
 }
 
 function qrValue(element: DesignElement, design: Design) {
-  if (element.qrMode === 'vcard') {
-    return [
-      'BEGIN:VCARD',
-      'VERSION:4.0',
-      `FN:${design.identity.name}`,
-      `ORG:${design.identity.company}`,
-      `TITLE:${design.identity.title}`,
-      'END:VCARD'
-    ].join('\n');
-  }
-  if (element.qrMode === 'url') return `https://cardforge.local/design/${design.meta.id}`;
-  return `https://cardforge.local/c/${design.meta.slug}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cardforge.app';
+  if (element.qrMode === 'vcard') return createVCard(design);
+  if (element.qrMode === 'url') return `${origin}/design/${design.meta.id}`;
+  return `${origin}/c/${design.meta.slug}`;
 }
 
 async function embedAsset(doc: PDFDocument, dataUrl: string) {
@@ -49,7 +46,14 @@ async function embedAsset(doc: PDFDocument, dataUrl: string) {
   return null;
 }
 
-async function drawSide(doc: PDFDocument, design: Design, side: CardSide, font: import('pdf-lib').PDFFont, bold: import('pdf-lib').PDFFont) {
+async function drawSide(
+  doc: PDFDocument,
+  design: Design,
+  side: CardSide,
+  font: import('pdf-lib').PDFFont,
+  bold: import('pdf-lib').PDFFont
+) {
+  const { w: baseW, h: baseH } = canvasDims(design.card);
   const bleed = design.card.bleedMm * PT_PER_MM;
   const width = design.card.widthMm * PT_PER_MM + bleed * 2;
   const height = design.card.heightMm * PT_PER_MM + bleed * 2;
@@ -57,32 +61,43 @@ async function drawSide(doc: PDFDocument, design: Design, side: CardSide, font: 
   page.drawRectangle({ x: 0, y: 0, width, height, color: hexToRgb(design.theme.surface) });
   page.setBleedBox(0, 0, width, height);
   page.setTrimBox(bleed, bleed, width - bleed * 2, height - bleed * 2);
-  const scaleX = (width - bleed * 2) / 336;
-  const scaleY = (height - bleed * 2) / 192;
+  const scaleX = (width - bleed * 2) / baseW;
+  const scaleY = (height - bleed * 2) / baseH;
 
   const elements = design.elements.filter((element) => element.side === side && !element.hidden).sort((a, b) => a.z - b.z);
   for (const element of elements) {
     const x = bleed + element.x * scaleX;
     const y = height - bleed - (element.y + element.height) * scaleY;
+    const ew = element.width * scaleX;
+    const eh = element.height * scaleY;
+    const opacity = element.opacity ?? 1;
     if (element.kind === 'shape') {
-      page.drawRectangle({
-        x,
-        y,
-        width: element.width * scaleX,
-        height: element.height * scaleY,
-        color: hexToRgb(element.fill ?? design.theme.brand)
-      });
+      const shape = element.shape ?? 'rect';
+      const color = hexToRgb(element.gradient ? element.gradient[0] : element.fill ?? design.theme.brand);
+      if (shape === 'ellipse') {
+        page.drawEllipse({ x: x + ew / 2, y: y + eh / 2, xScale: ew / 2, yScale: eh / 2, color, opacity });
+      } else if (shape === 'line') {
+        page.drawLine({
+          start: { x, y: y + eh / 2 },
+          end: { x: x + ew, y: y + eh / 2 },
+          thickness: (element.strokeWidth ?? element.height) * scaleY,
+          color: hexToRgb(element.stroke ?? element.fill ?? design.theme.brand),
+          opacity
+        });
+      } else {
+        page.drawRectangle({ x, y, width: ew, height: eh, color, opacity });
+      }
     }
-    if (element.kind === 'text') drawPdfText(page, design, element, x, y, scaleY, font, bold);
+    if (element.kind === 'text') drawPdfText(page, design, element, x, y, scaleX, scaleY, font, bold);
     if (element.kind === 'image') {
       const asset = design.assets.find((item) => item.id === element.assetId);
       const embedded = asset ? await embedAsset(doc, asset.dataUrl) : null;
-      if (embedded) page.drawImage(embedded, { x, y, width: element.width * scaleX, height: element.height * scaleY });
+      if (embedded) page.drawImage(embedded, { x, y, width: ew, height: eh, opacity });
     }
     if (element.kind === 'qr') {
       const qrDataUrl = await QRCode.toDataURL(qrValue(element, design), { margin: 1, color: { dark: design.theme.text, light: '#ffffff' } });
       const qrImage = await doc.embedPng(qrDataUrl);
-      page.drawImage(qrImage, { x, y, width: element.width * scaleX, height: element.height * scaleY });
+      page.drawImage(qrImage, { x, y, width: ew, height: eh, opacity });
     }
   }
   drawCropMarks(page, bleed, width, height);
@@ -94,20 +109,29 @@ function drawPdfText(
   element: DesignElement,
   x: number,
   y: number,
-  scale: number,
+  scaleX: number,
+  scaleY: number,
   font: import('pdf-lib').PDFFont,
   bold: import('pdf-lib').PDFFont
 ) {
-  const size = (element.fontSize ?? 10) * design.theme.typeScale * scale;
-  const lines = interpolateText(element.text ?? '', design).split('\n');
-  lines.forEach((line, index) => {
+  const layout = layoutText(element, design);
+  const size = layout.fontSize * scaleY;
+  const useBold = layout.fontWeight >= 600;
+  const pdfFont = useBold ? bold : font;
+  const boxWidth = element.width * scaleX;
+  const top = y + element.height * scaleY;
+  layout.lines.forEach((line, index) => {
+    const lineWidth = pdfFont.widthOfTextAtSize(line, size);
+    let offsetX = 0;
+    if (layout.align === 'center') offsetX = Math.max(0, (boxWidth - lineWidth) / 2);
+    else if (layout.align === 'right') offsetX = Math.max(0, boxWidth - lineWidth);
     page.drawText(line, {
-      x,
-      y: y + element.height * scale - size - index * size * design.theme.lineHeight,
+      x: x + offsetX,
+      y: top - size - index * size * design.theme.lineHeight,
       size,
-      font: element.id === 'name' ? bold : font,
+      font: pdfFont,
       color: hexToRgb(element.fill ?? design.theme.text),
-      maxWidth: element.width * scale
+      opacity: element.opacity ?? 1
     });
   });
 }
