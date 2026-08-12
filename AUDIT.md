@@ -1,12 +1,12 @@
 # CardForge Production Audit
 
-Date: 2026-07-30
+Date: 2026-08-12
 Repo: `adeelone/cardforge`
 Branch: `main`
 
 ## Current Status
 
-CardForge is a client-only Vite/React application for creating, previewing, saving, sharing, and exporting business card designs. The default product path does not require a backend, database, API key, or paid external service.
+CardForge is a client-only Vite/React application for creating, previewing, saving, sharing, and exporting business card designs. The default product path does not require a backend, database, API key, account, or paid external service.
 
 The application is deployable as static assets from `dist/`. GitHub Pages, Vercel, Netlify, Docker, and nginx deployment files are present.
 
@@ -19,13 +19,11 @@ The application is deployable as static assets from `dist/`. GitHub Pages, Verce
 - Public card route for encoded shared cards.
 - Static landing, settings, and fallback routing.
 - Export support for PDF, PNG, SVG, vCard, QR SVG, and JSON.
-- PWA manifest and service worker for same-origin static asset caching.
+- PWA manifest and service worker for same-origin static asset caching under both root and GitHub Pages subpath deployments.
 
 ## Environment Variables
 
-No environment variables are required for the default app.
-
-Optional deployment-specific values may be configured in the host dashboard, but CardForge does not depend on runtime secrets.
+No environment variables are required. `.env.example` is informational only; the current app does not read provider keys or make optional-service calls.
 
 ## Deployment Files
 
@@ -40,6 +38,7 @@ Optional deployment-specific values may be configured in the host dashboard, but
 
 - No server-side API routes are present.
 - No credential-bearing `.env` file is committed.
+- No third-party AI assistant project files are tracked.
 - Uploaded images remain inside the local design document unless the user exports or shares the document.
 - Vercel, Netlify, and nginx deployments set CSP, content type, referrer, permissions, and HTTPS security headers.
 - GitHub Pages cannot emit custom security headers; use Vercel/Netlify/nginx if response-header hardening is mandatory.
@@ -48,8 +47,9 @@ Optional deployment-specific values may be configured in the host dashboard, but
 ## Production Notes
 
 - The service worker and manifest use base-relative URLs so the PWA works under GitHub Pages subpaths such as `/cardforge/`.
+- GitHub Pages direct document requests for SPA deep links can return an initial 404; `public/404.html` redirects the browser back into the app route.
 - Export and QR dependencies are lazy-loaded from user actions to reduce the initial editor bundle.
-- The app is static-first; durable multi-device sync, accounts, team sharing, analytics, and payment workflows are intentionally not part of the default deployment.
+- The app is static-first; durable multi-device sync, accounts, team sharing, analytics, and payment workflows are not part of the current deployment.
 
 ## Validation Checklist
 

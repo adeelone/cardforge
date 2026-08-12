@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardforge-v0.1.1';
+const CACHE_NAME = 'cardforge-v0.2.0';
 const SHELL = ['.', 'manifest.webmanifest', 'icon.svg'].map((path) => new URL(path, self.registration.scope).toString());
 
 self.addEventListener('install', (event) => {
