@@ -12,6 +12,8 @@ The editor works from a single normalized `Design` document:
 - `elements`: stable front/back SVG element records.
 - `variants`: saved identity/contact combinations.
 - `assets`: uploaded images as data URLs.
+- `qrStyle`: module shape, foreground/background, quiet zone, correction level, and optional center mark.
+- `share`: field-level inclusion, image inclusion, vCard permission, and optional expiry.
 
 ## State
 
@@ -28,6 +30,15 @@ The editor works from a single normalized `Design` document:
 - SVG: serializes front and back into one SVG bundle.
 - vCard: emits vCard 4.0 with typed phone, email, URL, and address rows.
 - QR: encodes vCard, current URL, or the public digital-card URL.
+- Roster PDF: applies each local CSV variant to one approved layout and emits front/back pages per person.
+
+## Trust Boundary
+
+Imported JSON and compressed share payloads pass through `normalizeDesign` before storage or rendering. Collections and strings are bounded; active SVG assets are discarded; public contact links are protocol-checked. Shared designs are filtered by the design's share preferences and never include local roster variants.
+
+## Organization Workflow
+
+Roster CSV parsing runs locally and is capped at 250 people. It creates `DesignVariant` records without uploading the source file. The static edition deliberately has no central account, approval, or organization database.
 
 ## Worker Boundary
 

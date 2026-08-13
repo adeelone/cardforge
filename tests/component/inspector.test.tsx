@@ -7,7 +7,8 @@ describe('Inspector', () => {
     render(<Inspector />);
     expect(screen.getByLabelText('Name')).toBeInTheDocument();
     expect(screen.getByText('Layers')).toBeInTheDocument();
-    expect(screen.getByText('Export & share')).toBeInTheDocument();
+    expect(screen.getByText('Privacy & sharing')).toBeInTheDocument();
+    expect(screen.getByText('Team & roster')).toBeInTheDocument();
     // Insert toolbar exposes freeform element creation.
     const insert = within(screen.getByRole('group', { name: 'Insert elements' }));
     expect(insert.getByRole('button', { name: /Text/ })).toBeInTheDocument();

@@ -4,6 +4,7 @@ import {
   ArrowUpToLine,
   Copy,
   Download,
+  FileSpreadsheet,
   Eye,
   EyeOff,
   ImagePlus,
@@ -22,7 +23,9 @@ import {
   Type,
   Undo2,
   Unlock,
-  Palette
+  Palette,
+  ShieldCheck,
+  Users
 } from 'lucide-react';
 import { FONTS, FONT_PAIRINGS } from '../../data/fonts';
 import { CARD_PRESETS } from '../../lib/units';
@@ -35,6 +38,7 @@ import { downloadBlob, downloadText } from '../../lib/download';
 import { saveDesign } from '../../data/repo/designRepo';
 import { toast } from '../../lib/toast';
 import type { Alignment, DesignElement, ShapeKind } from '../../types/design';
+import { rosterTemplateCsv, variantsFromCsv, variantsToCsv } from '../../lib/roster';
 
 const FONT_GROUPS = ['Sans', 'Serif', 'Mono', 'Display'] as const;
 
@@ -63,6 +67,8 @@ export function Inspector() {
   const updateIdentity = useEditorStore((state) => state.updateIdentity);
   const updateTheme = useEditorStore((state) => state.updateTheme);
   const updateCard = useEditorStore((state) => state.updateCard);
+  const updateQrStyle = useEditorStore((state) => state.updateQrStyle);
+  const updateShare = useEditorStore((state) => state.updateShare);
   const updateContact = useEditorStore((state) => state.updateContact);
   const updateElement = useEditorStore((state) => state.updateElement);
   const renameDesign = useEditorStore((state) => state.renameDesign);
@@ -74,11 +80,13 @@ export function Inspector() {
   const removeContact = useEditorStore((state) => state.removeContact);
   const addVariant = useEditorStore((state) => state.addVariant);
   const applyVariant = useEditorStore((state) => state.applyVariant);
+  const importVariants = useEditorStore((state) => state.importVariants);
   const switchTemplate = useEditorStore((state) => state.switchTemplate);
   const swapSides = useEditorStore((state) => state.swapSides);
   const undo = useEditorStore((state) => state.undo);
   const redo = useEditorStore((state) => state.redo);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const rosterRef = useRef<HTMLInputElement | null>(null);
 
   const contrast = contrastRatio(design.theme.text, design.theme.surface);
   const palette = paletteFromSeed(design.theme.brand);
@@ -100,8 +108,8 @@ export function Inspector() {
       } else if (kind === 'json') {
         downloadText(JSON.stringify(design, null, 2), `${design.meta.slug}.cardforge.json`, 'application/json');
       } else if (kind === 'qr') {
-        const { default: QRCode } = await import('qrcode');
-        const data = await QRCode.toString(buildShareUrl(design), { type: 'svg' });
+        const { exportQrSvg } = await import('../../exporters/qr-svg');
+        const data = await exportQrSvg(design);
         downloadText(data, `${design.meta.slug}-qr.svg`, 'image/svg+xml');
       }
       toast(`${kind.toUpperCase()} exported`);
@@ -113,15 +121,22 @@ export function Inspector() {
 
   async function handleAssetUpload(file: File | null) {
     if (!file) return;
-    const allowed = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
+    const allowed = ['image/png', 'image/jpeg', 'image/webp'];
     if (!allowed.includes(file.type)) {
-      toast('Use PNG, JPG, WEBP, or SVG', 'error');
+      toast('Use PNG, JPG, or WEBP. SVG uploads are blocked for safety.', 'error');
       return;
     }
-    if (file.size > 4_000_000) {
-      toast('Image is larger than 4 MB', 'error');
+    if (file.size > 3_000_000) {
+      toast('Image is larger than 3 MB', 'error');
       return;
     }
+    const bitmap = await createImageBitmap(file);
+    if (bitmap.width > 6000 || bitmap.height > 6000 || bitmap.width * bitmap.height > 24_000_000) {
+      bitmap.close();
+      toast('Image dimensions are too large', 'error');
+      return;
+    }
+    bitmap.close();
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(String(reader.result));
@@ -144,6 +159,29 @@ export function Inspector() {
   function save() {
     void saveDesign(design);
     toast('Design saved locally');
+  }
+
+  async function importRoster(file: File | null) {
+    if (!file) return;
+    try {
+      const variants = variantsFromCsv(await file.text(), design);
+      if (!variants.length) throw new Error('No people were found');
+      importVariants(variants);
+      toast(`${variants.length} people imported`);
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Roster import failed', 'error');
+    }
+  }
+
+  async function exportRosterPdf() {
+    try {
+      const { exportRosterPdf: buildRosterPdf } = await import('../../exporters/pdf');
+      downloadBlob(await buildRosterPdf(design), `${design.meta.slug}-roster.pdf`);
+      toast(`${design.variants.length} cards exported to PDF`);
+    } catch (error) {
+      console.error(error);
+      toast('Roster PDF export failed', 'error');
+    }
   }
 
   return (
@@ -171,7 +209,7 @@ export function Inspector() {
         <input
           ref={fileRef}
           type="file"
-          accept="image/png,image/jpeg,image/svg+xml,image/webp"
+          accept="image/png,image/jpeg,image/webp"
           hidden
           onChange={(event) => {
             void handleAssetUpload(event.target.files?.[0] ?? null);
@@ -233,6 +271,25 @@ export function Inspector() {
       </details>
 
       <details open>
+        <summary><QrCode size={16} /> QR style</summary>
+        <div className="align-row" role="group" aria-label="QR module style">
+          {(['square', 'rounded', 'dots'] as const).map((pattern) => (
+            <button key={pattern} type="button" className={`chip ${design.qrStyle.pattern === pattern ? 'on' : ''}`} onClick={() => updateQrStyle({ pattern })}>{pattern}</button>
+          ))}
+        </div>
+        <div className="two-grid">
+          <label>Ink<input type="color" value={design.qrStyle.foreground} onChange={(event) => updateQrStyle({ foreground: event.target.value })} /></label>
+          <label>Paper<input type="color" value={design.qrStyle.background} onChange={(event) => updateQrStyle({ background: event.target.value })} /></label>
+        </div>
+        <div className="two-grid">
+          <label>Quiet zone<select value={design.qrStyle.margin} onChange={(event) => updateQrStyle({ margin: Number(event.target.value) })}><option value="1">Tight</option><option value="2">Standard</option><option value="3">Roomy</option></select></label>
+          <label>Error correction<select value={design.qrStyle.errorCorrection} onChange={(event) => updateQrStyle({ errorCorrection: event.target.value as typeof design.qrStyle.errorCorrection })}><option value="L">Low</option><option value="M">Medium</option><option value="Q">Quartile</option><option value="H">High</option></select></label>
+        </div>
+        <label className="check-label"><input type="checkbox" checked={design.qrStyle.centerMark} onChange={(event) => updateQrStyle({ centerMark: event.target.checked, errorCorrection: event.target.checked ? 'H' : design.qrStyle.errorCorrection })} /> Add company initial</label>
+        <p className="muted">Print-test custom QR codes at their final size before ordering cards.</p>
+      </details>
+
+      <details open>
         <summary><Type size={16} /> Typography</summary>
         <div className="two-grid">
           <FontSelect label="Heading" value={design.theme.headingFont} onChange={(value) => updateTheme({ headingFont: value, bodyFont: FONT_PAIRINGS[value] ?? design.theme.bodyFont })} />
@@ -284,20 +341,45 @@ export function Inspector() {
         </div>
       </details>
 
-      <details>
-        <summary><Copy size={16} /> Variants</summary>
-        <p className="muted">Save the current identity + contacts as a reusable variant (great for a team or multiple roles).</p>
+      <details open>
+        <summary><Users size={16} /> Team & roster <span className="kind-tag">{design.variants.length}</span></summary>
+        <p className="muted">Reuse this layout for a class, cohort, program, or team. CSV processing stays on this device.</p>
         <div className="variant-list">
           {design.variants.map((variant) => (
             <button key={variant.id} type="button" className="ghost-button" onClick={() => applyVariant(variant.id)}>{variant.name}</button>
           ))}
         </div>
         <button type="button" className="ghost-button" onClick={addVariant}><Plus size={15} /> Save current as variant</button>
+        <div className="roster-actions">
+          <button type="button" className="ghost-button" onClick={() => downloadText(rosterTemplateCsv(), 'cardforge-roster-template.csv', 'text/csv')}><FileSpreadsheet size={15} />CSV template</button>
+          <button type="button" className="ghost-button" onClick={() => rosterRef.current?.click()}><FileSpreadsheet size={15} />Import roster</button>
+          <button type="button" className="ghost-button" onClick={() => downloadText(variantsToCsv(design.variants), `${design.meta.slug}-roster.csv`, 'text/csv')}><Download size={15} />Export CSV</button>
+          <button type="button" className="primary-button" onClick={() => void exportRosterPdf()}><Download size={15} />Roster PDF</button>
+        </div>
+        <input ref={rosterRef} type="file" accept="text/csv,.csv" hidden onChange={(event) => { void importRoster(event.target.files?.[0] ?? null); event.target.value = ''; }} />
       </details>
 
       <details open>
-        <summary><Download size={16} /> Export & share</summary>
+        <summary><ShieldCheck size={16} /> Privacy & sharing</summary>
+        <p className="trust-note"><ShieldCheck size={15} /> Only the fields enabled below are placed in a share link.</p>
+        <div className="share-toggle-grid">
+          {([
+            ['includeEmail', 'Email'], ['includePhone', 'Phone'], ['includeWebsite', 'Website'], ['includeSocial', 'Social links'],
+            ['includeAddress', 'Address'], ['includePronouns', 'Pronouns'], ['includeTagline', 'Tagline'], ['includeImages', 'Uploaded images']
+          ] as const).map(([key, label]) => (
+            <label className="check-label" key={key}><input type="checkbox" checked={design.share[key]} onChange={(event) => updateShare({ [key]: event.target.checked })} /> {label}</label>
+          ))}
+        </div>
+        <label>Link expiry<select value={design.share.expiresAt ? 'dated' : 'never'} onChange={(event) => {
+          const days = Number(event.target.value);
+          updateShare({ expiresAt: Number.isFinite(days) ? new Date(Date.now() + days * 86_400_000).toISOString() : null });
+        }}><option value="never">Never</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option>{design.share.expiresAt ? <option value="dated">{new Date(design.share.expiresAt).toLocaleDateString()}</option> : null}</select></label>
+        <label className="check-label"><input type="checkbox" checked={design.share.allowVcard} onChange={(event) => updateShare({ allowVcard: event.target.checked })} /> Let recipients save a vCard</label>
         <button type="button" className="primary-button full" onClick={() => void copyShareUrl()}><LinkIcon size={15} />Copy digital card link</button>
+      </details>
+
+      <details open>
+        <summary><Download size={16} /> Export</summary>
         <div className="export-grid">
           {(['pdf', 'png', 'svg', 'vcf', 'qr', 'json'] as const).map((kind) => (
             <button key={kind} type="button" className="ghost-button" onClick={() => void handleExport(kind)}><Download size={14} />{kind.toUpperCase()}</button>

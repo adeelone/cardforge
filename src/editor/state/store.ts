@@ -32,6 +32,8 @@ interface EditorStore {
   updateIdentity: (patch: Partial<Identity>) => void;
   updateTheme: (patch: Partial<Theme>) => void;
   updateCard: (patch: Partial<Design['card']>) => void;
+  updateQrStyle: (patch: Partial<Design['qrStyle']>) => void;
+  updateShare: (patch: Partial<Design['share']>) => void;
   renameDesign: (name: string) => void;
   updateContact: (id: string, patch: Partial<ContactItem>) => void;
   addContact: () => void;
@@ -52,6 +54,7 @@ interface EditorStore {
   swapSides: () => void;
   addVariant: () => void;
   applyVariant: (id: string) => void;
+  importVariants: (variants: Design['variants']) => void;
   undo: () => void;
   redo: () => void;
 }
@@ -189,6 +192,10 @@ export const useEditorStore = create<EditorStore>((set) => ({
       }
       return commit(state, { ...current, card: nextCard });
     }),
+  updateQrStyle: (patch) =>
+    set((state) => commit(state, { ...state.history.present, qrStyle: { ...state.history.present.qrStyle, ...patch } })),
+  updateShare: (patch) =>
+    set((state) => commit(state, { ...state.history.present, share: { ...state.history.present.share, ...patch } })),
   updateContact: (id, patch) =>
     set((state) =>
       commit(state, {
@@ -338,6 +345,17 @@ export const useEditorStore = create<EditorStore>((set) => ({
       const variant = state.history.present.variants.find((item) => item.id === id);
       if (!variant) return {};
       return commit(state, { ...state.history.present, identity: variant.identity, contacts: variant.contacts });
+    }),
+  importVariants: (variants) =>
+    set((state) => {
+      if (!variants.length) return {};
+      const bounded = variants.slice(0, 250);
+      return commit(state, {
+        ...state.history.present,
+        variants: bounded,
+        identity: bounded[0].identity,
+        contacts: bounded[0].contacts
+      });
     }),
   undo: () => set((state) => ({ history: undo(state.history) })),
   redo: () => set((state) => ({ history: redo(state.history) }))

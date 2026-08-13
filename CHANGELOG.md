@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.0 - Professional pilot edition
+
+### Added
+- Six additional templates for students, professionals, creatives, and small businesses, bringing the built-in collection to 16.
+- Searchable template and local card libraries, customizable QR patterns, privacy-aware share links, and standalone QR SVG export.
+- CSV roster import and export, reusable team variants, and multi-person roster PDF generation for schools and organizations.
+- Organization, trust, sharing, privacy, terms, accessibility, and help pages.
+- Deployment, organization-pilot, security-reporting, and operational documentation.
+- CodeQL, dependency review, and expanded desktop/mobile end-to-end coverage.
+
+### Changed
+- Reworked the editor into a larger proofing workspace with a focused tool rail and roomier inspector.
+- Refined the visual system with warmer language, restrained surfaces, and responsive layouts for professional presentations.
+- Share links now expose only explicitly selected fields and never include the full roster.
+
+### Security
+- Added strict design normalization, payload and upload limits, unsafe URL filtering, raster-only image uploads, and share expiry support.
+- Added restrictive browser security headers for Vercel, Netlify, and nginx deployments.
+- Added a security contact file and documented the static edition's privacy and trust boundaries.
+
 ## 0.2.0 — Studio revamp
 
 ### Added

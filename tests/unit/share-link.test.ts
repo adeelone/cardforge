@@ -22,4 +22,17 @@ describe('share link encoding', () => {
     const corrupted = raw.replaceAll('+', ' ');
     expect(decodeSharePayload(corrupted)?.meta.id).toBe(design.meta.id);
   });
+
+  it('does not place disabled contact fields into a share link', () => {
+    const design = createStarterDesign();
+    design.share.includePhone = false;
+    const url = new URL(buildShareUrl(design));
+    const decoded = decodeSharePayload(url.searchParams.get('d') ?? '');
+    expect(decoded?.contacts.some((contact) => contact.kind === 'phone')).toBe(false);
+    expect(decoded?.variants).toEqual([]);
+  });
+
+  it('rejects oversized compressed payloads before decompression', () => {
+    expect(decodeSharePayload('a'.repeat(70_001))).toBeNull();
+  });
 });

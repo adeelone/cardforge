@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { FolderOpen, LayoutTemplate, QrCode, Shapes, Type } from 'lucide-react';
 import { CanvasStage } from '../editor/canvas/canvas-stage';
 import { Inspector } from '../editor/inspector/inspector';
 import { useEditorStore } from '../editor/state/store';
@@ -13,6 +14,7 @@ export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
   const [params] = useSearchParams();
   const design = useEditorStore((state) => state.history.present);
   const setDesign = useEditorStore((state) => state.setDesign);
+  const addElement = useEditorStore((state) => state.addElement);
   const units = useUnits();
 
   useEffect(() => {
@@ -36,6 +38,13 @@ export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
 
   return (
     <main className="editor-route">
+      <aside className="editor-rail" aria-label="Editor tools">
+        <button type="button" onClick={() => addElement('text')} title="Add text"><Type size={19} /><span>Text</span></button>
+        <button type="button" onClick={() => addElement('shape')} title="Add shape"><Shapes size={19} /><span>Shape</span></button>
+        <button type="button" onClick={() => addElement('qr')} title="Add QR code"><QrCode size={19} /><span>QR</span></button>
+        <Link to="/templates" title="Browse templates"><LayoutTemplate size={19} /><span>Templates</span></Link>
+        <Link to="/library" title="Open my cards"><FolderOpen size={19} /><span>My cards</span></Link>
+      </aside>
       <CanvasStage units={units} />
       <Inspector />
     </main>

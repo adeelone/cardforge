@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Copy, Download, FilePlus2, Trash2, Upload } from 'lucide-react';
+import { Copy, Download, FilePlus2, Search, Trash2, Upload } from 'lucide-react';
 import type { Design } from '../types/design';
 import { deleteDesign, listDesigns, saveDesign } from '../data/repo/designRepo';
 import { createId, slugify } from '../lib/id';
 import { downloadText } from '../lib/download';
 import { CardSvg } from '../editor/canvas/card-svg';
 import { toast } from '../lib/toast';
+import { MAX_IMPORT_BYTES, normalizeDesign } from '../lib/design-security';
 
 export function LibraryRoute() {
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [query, setQuery] = useState('');
 
   async function refresh() {
     setDesigns(await listDesigns());
@@ -35,8 +37,9 @@ export function LibraryRoute() {
   async function importDesign(file: File | null) {
     if (!file) return;
     try {
-      const parsed = JSON.parse(await file.text()) as Design;
-      if (!parsed.meta || !parsed.elements) throw new Error('Not a CardForge file');
+      if (file.size > MAX_IMPORT_BYTES) throw new Error('File is too large');
+      const parsed = normalizeDesign(JSON.parse(await file.text()));
+      if (!parsed) throw new Error('Not a CardForge file');
       const now = new Date().toISOString();
       await saveDesign({
         ...parsed,
@@ -56,6 +59,11 @@ export function LibraryRoute() {
     }
   }
 
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleDesigns = normalizedQuery
+    ? designs.filter((design) => [design.meta.name, design.identity.name, design.identity.company, design.identity.title].some((value) => value.toLowerCase().includes(normalizedQuery)))
+    : designs;
+
   return (
     <main className="page">
       <header className="page-header library-header">
@@ -72,6 +80,13 @@ export function LibraryRoute() {
         </div>
       </header>
 
+      {designs.length > 0 ? (
+        <div className="library-tools">
+          <label className="search-field"><Search size={16} aria-hidden="true" /><span className="sr-only">Search saved cards</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by person, company, or role" /></label>
+          <span>{visibleDesigns.length} of {designs.length} cards</span>
+        </div>
+      ) : null}
+
       {designs.length === 0 ? (
         <div className="empty-state">
           <p>No saved designs yet.</p>
@@ -80,14 +95,15 @@ export function LibraryRoute() {
         </div>
       ) : (
         <div className="library-grid">
-          {designs.map((design) => (
+          {visibleDesigns.map((design) => (
             <article className="library-card" key={design.meta.id}>
               <Link to={`/design/${design.meta.id}`} className="library-preview" aria-label={`Open ${design.meta.name}`}>
                 <CardSvg design={design} side="front" />
               </Link>
               <div className="library-info">
                 <strong>{design.meta.name}</strong>
-                <span>{new Date(design.meta.updatedAt).toLocaleString()}</span>
+                <span>{design.identity.title}{design.identity.company ? ` at ${design.identity.company}` : ''}</span>
+                <span>Edited {new Date(design.meta.updatedAt).toLocaleString()}</span>
               </div>
               <div className="library-actions">
                 <Link to={`/design/${design.meta.id}`} className="ghost-button">Open</Link>

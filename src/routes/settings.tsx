@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Monitor, Moon, Sun, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Monitor, Moon, ShieldCheck, Sun, Trash2 } from 'lucide-react';
 import {
   getThemePreference,
   getUnits,
@@ -84,6 +85,7 @@ export function SettingsRoute() {
           CardForge stores your designs in this browser (IndexedDB). Export JSON to back them up before clearing browser data or moving devices.
         </p>
         <button type="button" className="danger-button" onClick={() => void clearAll()}><Trash2 size={15} />Delete all local data</button>
+        <Link to="/trust" className="ghost-button settings-link"><ShieldCheck size={15} />Review security and sharing</Link>
       </section>
     </main>
   );
