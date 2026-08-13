@@ -1,6 +1,6 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Download, Globe, Mail, MapPin, Phone, Share2, ShieldCheck } from 'lucide-react';
-import { decodeSharePayload } from '../exporters/share-link';
+import { decodeSharePayload, extractSharePayload } from '../exporters/share-link';
 import { createVCard } from '../exporters/vcard';
 import { downloadText } from '../lib/download';
 import { CardSvg } from '../editor/canvas/card-svg';
@@ -16,8 +16,8 @@ const CONTACT_ICON = {
 } as const;
 
 export function PublicCardRoute() {
-  const [params] = useSearchParams();
-  const design = decodeSharePayload(params.get('d') ?? '');
+  const location = useLocation();
+  const design = decodeSharePayload(extractSharePayload(location.search, location.hash));
 
   if (!design) {
     return (

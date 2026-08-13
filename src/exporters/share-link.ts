@@ -27,9 +27,15 @@ export function shareBase() {
   return `${origin}${base}`;
 }
 
-/** Build a shareable digital-card URL. The payload is percent-encoded so '+'
- *  survives URLSearchParams round-trips. */
+/** Read current fragment-based links and legacy query-string links. */
+export function extractSharePayload(search: string, hash: string): string {
+  const fragment = new URLSearchParams(hash.replace(/^#/, '')).get('d');
+  return fragment ?? new URLSearchParams(search).get('d') ?? '';
+}
+
+/** Build a shareable digital-card URL. The fragment is never sent to the host
+ *  in an HTTP request, which keeps card data out of ordinary access logs. */
 export function buildShareUrl(design: Design, opts?: { stripAssets?: boolean }): string {
   const payloadDesign = sanitizeSharedDesign(design, opts?.stripAssets);
-  return `${shareBase()}/c/${design.meta.slug}?d=${encodeURIComponent(encodeSharePayload(payloadDesign))}`;
+  return `${shareBase()}/c/${design.meta.slug}#d=${encodeURIComponent(encodeSharePayload(payloadDesign))}`;
 }

@@ -26,4 +26,20 @@ test('professional product pages and expanded templates render', async ({ page }
   await page.goto('/trust');
   await expect(page.getByRole('heading', { name: 'Your card is personal. The editor should respect that.' })).toBeVisible();
   await expect(page.getByText('No tracking runtime')).toBeVisible();
+
+  await page.goto('/settings');
+  await expect(page.getByText('CardForge 0.3.1. Production updates are checked whenever the app opens.')).toBeVisible();
+});
+
+test('digital cards keep private data out of the request query', async ({ context, page }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/new');
+  await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Private Example');
+  await page.getByRole('button', { name: 'Copy digital card link' }).click();
+  const shareUrl = await page.evaluate(() => navigator.clipboard.readText());
+  const parsed = new URL(shareUrl);
+  expect(parsed.search).toBe('');
+  expect(parsed.hash).toMatch(/^#d=/);
+  await page.goto(shareUrl);
+  await expect(page.getByRole('heading', { name: 'Private Example' })).toBeVisible();
 });

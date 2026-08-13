@@ -46,12 +46,15 @@ No environment variables are required. `.env.example` is informational only; the
 - GitHub Pages cannot emit custom security headers; use Vercel/Netlify/nginx if response-header hardening is mandatory.
 - The app stores designs locally in IndexedDB. Shared URLs intentionally include encoded design data in the URL.
 - Shared/imported payloads are bounded and validated; unsafe asset types and public contact protocols are rejected.
+- Nested imported text, enum, and geometry fields are normalized and bounded before rendering.
 - Share links use field-level privacy controls, exclude images and addresses by default, and may carry a client-enforced expiry.
+- New share payloads use URL fragments so the hosting request does not carry card data; legacy query links remain supported.
 - Vercel, Netlify, and nginx policies also deny objects and framing and set opener/resource isolation headers.
 
 ## Production Notes
 
 - The service worker and manifest use base-relative URLs so the PWA works under GitHub Pages subpaths such as `/cardforge/`.
+- Page navigation is network-first and the service worker is release-versioned, update-checked, and scoped to CardForge caches to prevent stale releases.
 - GitHub Pages direct document requests for SPA deep links can return an initial 404; `public/404.html` redirects the browser back into the app route.
 - Export and QR dependencies are lazy-loaded from user actions to reduce the initial editor bundle.
 - The app is static-first; durable multi-device sync, accounts, team sharing, analytics, and payment workflows are not part of the current deployment.

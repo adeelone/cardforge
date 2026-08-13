@@ -9,7 +9,6 @@ test-results/
 Thumbs.db
 .idea/
 .vscode/
-.claude/
 *.local
 .env
 .env.*

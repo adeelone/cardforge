@@ -42,6 +42,20 @@ describe('design security boundary', () => {
     expect(normalized?.elements.some((element) => element.id === 'image')).toBe(false);
   });
 
+  it('deeply normalizes malformed nested fields and extreme geometry', () => {
+    const unsafe = createStarterDesign() as unknown as Record<string, unknown>;
+    (unsafe.identity as Record<string, unknown>).tagline = { injected: true };
+    const element = (unsafe.elements as Record<string, unknown>[])[0];
+    element.kind = 'script';
+    element.x = Number.MAX_VALUE;
+    element.text = { html: '<img onerror=alert(1)>' };
+    const normalized = normalizeDesign(unsafe);
+    expect(normalized?.identity.tagline).toBe('');
+    expect(normalized?.elements[0].kind).toBe('text');
+    expect(normalized?.elements[0].x).toBe(10_000);
+    expect(normalized?.elements[0].text).toBeUndefined();
+  });
+
   it('rejects unsafe link protocols and malformed payload sizes', () => {
     expect(safeContactHref({ id: 'x', kind: 'website', label: 'Site', value: 'javascript:alert(1)' })).toBeUndefined();
     expect(safeContactHref({ id: 'x', kind: 'website', label: 'Site', value: 'example.com' })).toBe('https://example.com/');

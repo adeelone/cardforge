@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Download, HeartHandshake, Layers, Palette, QrCode, ShieldCheck } from 'lucide-react';
 import { templates, createStarterDesign } from '../editor/templates/templates';
 import { CardSvg } from '../editor/canvas/card-svg';
+import { APP_RELEASE } from '../app/release';
 
 const FEATURES = [
   { icon: Download, title: 'Print-ready exports', body: 'PDF with true bleed and crop marks, plus PNG, SVG, and vCard — sized to real card presets.' },
@@ -83,7 +84,7 @@ export function LandingRoute() {
       </section>
 
       <footer className="site-footer">
-        <span>CardForge — local-first business card studio</span>
+        <span>CardForge {APP_RELEASE} — local-first business card studio</span>
         <div className="footer-links">
           <Link to="/templates">Templates</Link>
           <Link to="/library">Library</Link>
@@ -92,6 +93,8 @@ export function LandingRoute() {
           <Link to="/organizations">For teams</Link>
           <Link to="/privacy">Privacy</Link>
           <Link to="/terms">Terms</Link>
+          <Link to="/accessibility">Accessibility</Link>
+          <a href="https://github.com/adeelone/cardforge/security/advisories/new">Security</a>
         </div>
       </footer>
     </main>

@@ -33,12 +33,12 @@ export function TrustRoute() {
       <section className="trust-data-flow">
         <div>
           <h2>What leaves your device</h2>
-          <p>Nothing leaves automatically. A file leaves only when you export it. A digital card leaves only when you copy and send its URL.</p>
+          <p>Design content leaves only when you export a file or send a digital-card URL. The site host still receives ordinary web-request metadata when the app loads.</p>
         </div>
         <ol>
           <li><strong>You edit</strong><span>Design state stays in browser storage.</span></li>
           <li><strong>You review</strong><span>Share controls remove fields you turn off.</span></li>
-          <li><strong>You send</strong><span>The filtered design is compressed into the URL.</span></li>
+          <li><strong>You send</strong><span>The filtered design is compressed into a URL fragment that is not sent to the host.</span></li>
         </ol>
       </section>
 

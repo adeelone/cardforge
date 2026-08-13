@@ -21,6 +21,7 @@ Run a low-risk business-card workshop or cohort rollout for students, founders, 
 5. Configure sharing fields and expiry for the cohort.
 6. Export the roster PDF and print one physical proof.
 7. Correct issues, export the final PDF, and archive the approved CSV and CardForge JSON in organization-managed storage.
+8. Delete the local CardForge workspace and working roster after the organization's approved retention period.
 
 ## Success Criteria
 
@@ -29,6 +30,7 @@ Run a low-risk business-card workshop or cohort rollout for students, founders, 
 - Every QR scans at final size on at least two current mobile devices.
 - The print provider accepts the PDF dimensions, bleed, and crop marks.
 - The organization can reproduce the output from its archived CSV and CardForge JSON.
+- The owner records participant consent, retention period, storage location, and final disposal.
 
 ## Do Not Use the Static Edition For
 

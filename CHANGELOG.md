@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.1 - Fresh-release and security hardening
+
+### Fixed
+- Replaced cache-first page navigation with network-first navigation and automatic service-worker update checks so returning visitors receive the current interface.
+- Scoped cache cleanup and local-data deletion to CardForge instead of other applications on the same origin.
+- Corrected GitHub Pages icon, manifest, and Open Graph paths for the `/cardforge/` deployment base.
+
+### Privacy and security
+- Moved new digital-card payloads from query strings to URL fragments while retaining legacy-link compatibility.
+- Added deep nested import normalization, bounded geometry, stricter CSP and permissions policies, release-safe cache headers, CI dependency auditing, and least-privilege workflow permissions.
+- Added a threat model, production firewall/WAF baseline, incident-response procedure, and expanded privacy, terms, accessibility, and school-use notices.
+
 ## 0.3.0 - Professional pilot edition
 
 ### Added

@@ -5,6 +5,7 @@ import { createAppRouter } from './app/router';
 import { ErrorBoundary } from './app/error-boundary';
 import { Toaster } from './app/toaster';
 import { applyTheme } from './app/theme';
+import { APP_RELEASE } from './app/release';
 import './styles/fonts.css';
 import './styles/base.css';
 
@@ -28,5 +29,18 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 );
 
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => undefined);
+  const hadController = Boolean(navigator.serviceWorker.controller);
+  let reloading = false;
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading || sessionStorage.getItem('cardforge:release') === APP_RELEASE) return;
+    reloading = true;
+    sessionStorage.setItem('cardforge:release', APP_RELEASE);
+    window.location.reload();
+  });
+
+  void navigator.serviceWorker
+    .register(`${import.meta.env.BASE_URL}sw.js?v=${APP_RELEASE}`, { updateViaCache: 'none' })
+    .then((registration) => registration.update())
+    .catch(() => undefined);
 }
