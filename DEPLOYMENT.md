@@ -25,6 +25,7 @@ Recommended topology:
 7. Create the DNS records Vercel displays at the domain registrar.
 8. Enable deployment protection for previews if rosters or realistic contact data will be used in testing.
 9. Require the GitHub CI and E2E checks before merging to `main`.
+10. Enable the provider firewall/WAF, restrict public methods to static reads, and alert on deployment or domain changes as described in `PRODUCTION_SECURITY.md`.
 
 `vercel.json` provides SPA rewrites and production security headers.
 
@@ -38,11 +39,17 @@ Recommended topology:
 
 `netlify.toml` provides SPA routing and production security headers.
 
+## Cloudflare or Edge Firewall
+
+Place a custom production domain behind a managed edge only when the selected host supports that topology. Enable managed DDoS/WAF rules, block secret/source paths, allow only static read methods, protect previews, and keep DNS/registrar MFA enabled. The full rule baseline is in `PRODUCTION_SECURITY.md`.
+
+GitHub Pages remains the public demo but cannot accept repository-defined WAF rules or all desired response headers.
+
 ## Docker / Private Hosting
 
 ```bash
-docker build -t cardforge:0.3.0 .
-docker run --rm -p 8080:80 cardforge:0.3.0
+docker build -t cardforge:0.3.1 .
+docker run --rm -p 8080:80 cardforge:0.3.1
 ```
 
 Terminate TLS at a managed load balancer or reverse proxy. The bundled nginx server handles SPA fallback, immutable asset caching, and security headers.

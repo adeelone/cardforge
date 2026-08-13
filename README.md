@@ -9,7 +9,7 @@ It runs anonymous-first in the browser, saves designs locally, and exports PDF (
 - **Freeform editor** — add, delete, duplicate, drag, resize, rotate, layer, align, and lock text, shapes, images, and QR codes. Whole drags are a single undo step.
 - **Real typography** — 10 self-hosted typefaces (via `@fontsource`) with curated heading/body pairings, so every template renders in its true typeface, online or offline.
 - **True card geometry** — the canvas tracks each preset's real aspect ratio (US, EU, JP, UK, square, mini; landscape/portrait) instead of forcing everything into a landscape box.
-- **Digital cards** — share a link or QR that opens a tappable digital card and saves the recipient's contact. The link is serverless (the design travels in the URL) and survives `URLSearchParams` round-trips.
+- **Digital cards** — share a link or QR that opens a tappable digital card and saves the recipient's contact. New links keep the filtered design in the URL fragment so ordinary hosting requests do not receive it.
 - **Private sharing controls** — choose exactly which contact fields, pronouns, tagline, and images enter a link; optionally expire the card and disable vCard downloads.
 - **Custom QR studio** — square, rounded, or dot modules; custom ink and paper; quiet-zone and correction controls; optional center initial; consistent preview and SVG export.
 - **16 templates** — professional, minimal, creative, personal, student, and small-business layouts with content-preserving switching.
@@ -53,16 +53,7 @@ npm run build
 
 ## Environment
 
-Copy `.env.example` to `.env.local` when enabling optional features.
-
-- `VITE_ENABLE_LLM=false` keeps all LLM helpers disabled.
-- `VITE_LLM_PROVIDER=mock` is the default provider abstraction.
-- `VITE_ENABLE_SYNC=false` keeps Supabase sync out of the runtime path.
-- `VITE_ENABLE_ANALYTICS=false` disables analytics.
-
-## Feature Flags
-
-Optional sync, LLM copy helpers, analytics, and background removal are intentionally off by default. No network calls are made by those features when disabled.
+CardForge 0.3.1 requires and reads no environment variables. Do not put secrets in `VITE_*` variables because Vite embeds those values in public browser code. `.env.example` records that boundary for deployment tools.
 
 ## Security model
 
@@ -70,9 +61,9 @@ Optional sync, LLM copy helpers, analytics, and background removal are intention
 - Imported assets are limited to PNG, JPEG, and WEBP data URLs; active SVG uploads are not accepted.
 - Public contact links allow only validated `http`, `https`, `mailto`, and `tel` destinations.
 - Static-host configs add CSP, anti-framing, MIME-sniffing, referrer, permissions, opener, and resource policies. GitHub Pages cannot provide custom response headers, so an equivalent meta CSP is included there.
-- Share payloads are encoded, not encrypted. Anyone with a link can read or forward included fields.
+- Share payloads are encoded, not encrypted. Anyone with a link can read or forward included fields. New links use URL fragments; legacy query-string links remain readable for compatibility.
 
-See the in-app Trust Center and [SECURITY.md](SECURITY.md) for boundaries and reporting.
+See the in-app Trust Center, [SECURITY.md](SECURITY.md), [THREAT_MODEL.md](THREAT_MODEL.md), [PRODUCTION_SECURITY.md](PRODUCTION_SECURITY.md), and [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md) for boundaries, hosting controls, and reporting.
 
 ## Deploy
 
@@ -111,7 +102,6 @@ npm run build
 ## Known boundaries
 
 - Embed/subset the self-hosted fonts into PDF export (PDF currently uses standard Helvetica; the canvas, PNG, and SVG use the true typefaces).
-- Add CSV batch export for teams.
 - Add optional hosted short links so image-heavy digital cards aren't limited by URL length.
 - Add NFC writer companion and wallet pass export.
 - True CMYK conversion remains an external print-production step.

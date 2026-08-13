@@ -46,4 +46,8 @@ Palette extraction, raster work, and optional background removal have worker ent
 
 ## PWA
 
-The production build registers `public/sw.js`, caching the editor shell and manifest. IndexedDB keeps designs available offline.
+The production build registers `public/sw.js` with cache bypass for worker updates. Navigation is network-first with an offline shell fallback; fingerprinted assets are cache-first. Activation removes only older `cardforge-*` caches and claims open clients. IndexedDB keeps designs available offline.
+
+## Share Transport
+
+New public-card payloads are stored after `#d=` in the URL fragment. Fragments remain browser-side and are not part of the HTTP request or ordinary host access log. The decoder retains legacy `?d=` support so previously issued links continue to work.

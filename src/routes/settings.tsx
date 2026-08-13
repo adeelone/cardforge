@@ -10,6 +10,8 @@ import {
   type Units
 } from '../app/theme';
 import { toast } from '../lib/toast';
+import { clearAllDesigns } from '../data/repo/designRepo';
+import { APP_RELEASE } from '../app/release';
 
 const THEMES: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
   { value: 'system', label: 'System', icon: Monitor },
@@ -33,11 +35,16 @@ export function SettingsRoute() {
 
   async function clearAll() {
     if (!window.confirm('Delete all locally stored designs and settings? This cannot be undone.')) return;
-    localStorage.clear();
-    if ('indexedDB' in window) indexedDB.deleteDatabase('keyval-store');
+    await clearAllDesigns();
+    Object.keys(localStorage).filter((key) => key.startsWith('cardforge:')).forEach((key) => localStorage.removeItem(key));
     if ('caches' in window) {
       const keys = await caches.keys();
-      await Promise.all(keys.map((key) => caches.delete(key)));
+      await Promise.all(keys.filter((key) => key.startsWith('cardforge-')).map((key) => caches.delete(key)));
+    }
+    if ('serviceWorker' in navigator) {
+      const baseUrl = new URL(import.meta.env.BASE_URL, window.location.origin).href;
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.filter((registration) => registration.scope === baseUrl).map((registration) => registration.unregister()));
     }
     toast('Local data cleared');
     setTimeout(() => window.location.reload(), 600);
@@ -86,6 +93,11 @@ export function SettingsRoute() {
         </p>
         <button type="button" className="danger-button" onClick={() => void clearAll()}><Trash2 size={15} />Delete all local data</button>
         <Link to="/trust" className="ghost-button settings-link"><ShieldCheck size={15} />Review security and sharing</Link>
+      </section>
+
+      <section className="setting-block release-block">
+        <h2>Release</h2>
+        <p className="muted">CardForge {APP_RELEASE}. Production updates are checked whenever the app opens.</p>
       </section>
     </main>
   );
