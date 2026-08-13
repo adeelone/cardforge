@@ -1,11 +1,11 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, Globe, Mail, MapPin, Phone, Share2 } from 'lucide-react';
+import { Download, Globe, Mail, MapPin, Phone, Share2, ShieldCheck } from 'lucide-react';
 import { decodeSharePayload } from '../exporters/share-link';
 import { createVCard } from '../exporters/vcard';
 import { downloadText } from '../lib/download';
 import { CardSvg } from '../editor/canvas/card-svg';
 import { toast } from '../lib/toast';
-import type { ContactItem } from '../types/design';
+import { isShareExpired, safeContactHref } from '../lib/design-security';
 
 const CONTACT_ICON = {
   email: Mail,
@@ -14,15 +14,6 @@ const CONTACT_ICON = {
   social: Globe,
   address: MapPin
 } as const;
-
-function href(contact: ContactItem) {
-  if (contact.kind === 'email') return `mailto:${contact.value}`;
-  if (contact.kind === 'phone') return `tel:${contact.value}`;
-  if (contact.kind === 'website' || contact.kind === 'social') {
-    return contact.value.startsWith('http') ? contact.value : `https://${contact.value}`;
-  }
-  return undefined;
-}
 
 export function PublicCardRoute() {
   const [params] = useSearchParams();
@@ -33,6 +24,17 @@ export function PublicCardRoute() {
       <main className="page digital-empty">
         <h1>Card link is incomplete</h1>
         <p className="muted">This digital card link is missing or corrupted. Ask the sender to share it again.</p>
+        <Link to="/new" className="primary-button">Create your own card</Link>
+      </main>
+    );
+  }
+
+  if (isShareExpired(design)) {
+    return (
+      <main className="page digital-empty">
+        <ShieldCheck size={30} />
+        <h1>This card link has expired</h1>
+        <p className="muted">The sender limited how long this link could be opened. Ask them for a fresh link.</p>
         <Link to="/new" className="primary-button">Create your own card</Link>
       </main>
     );
@@ -68,7 +70,7 @@ export function PublicCardRoute() {
           <ul className="digital-contacts">
             {contacts.map((contact) => {
               const Icon = CONTACT_ICON[contact.kind];
-              const link = href(contact);
+              const link = safeContactHref(contact);
               return (
                 <li key={contact.id}>
                   <Icon size={17} aria-hidden="true" />
@@ -79,11 +81,14 @@ export function PublicCardRoute() {
           </ul>
 
           <div className="digital-actions">
-            <button type="button" className="primary-button" onClick={() => downloadText(createVCard(design), `${design.meta.slug}.vcf`, 'text/vcard')}>
-              <Download size={17} />Save contact
-            </button>
+            {design.share.allowVcard ? (
+              <button type="button" className="primary-button" onClick={() => downloadText(createVCard(design), `${design.meta.slug}.vcf`, 'text/vcard')}>
+                <Download size={17} />Save contact
+              </button>
+            ) : null}
             <button type="button" className="ghost-button" onClick={() => void shareLink()}><Share2 size={16} />Share</button>
           </div>
+          <p className="digital-trust"><ShieldCheck size={14} /> Shared directly by {design.identity.name}. CardForge does not track visits.</p>
           <Link to="/new" className="digital-made">Made with CardForge — create your own →</Link>
         </section>
       </div>

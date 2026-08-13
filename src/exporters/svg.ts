@@ -1,9 +1,8 @@
-import QRCode from 'qrcode';
 import type { CardSide, Design, DesignElement } from '../types/design';
 import { layoutText, alignToAnchor, anchorX } from '../editor/canvas/render-text';
 import { fontStack } from '../data/fonts';
 import { canvasDims } from '../lib/units';
-import { qrCandidates, firstRenderable, QR_OPTIONS } from './qr-value';
+import { exportQrSvg } from './qr-svg';
 
 function escapeXml(value: string) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
@@ -59,10 +58,7 @@ async function elementMarkup(element: DesignElement, design: Design) {
     return `<defs><clipPath id="${clipId}"><rect ${attrs({ width: element.width, height: element.height, rx: element.radius ?? 0 })}/></clipPath></defs><image ${attrs({ href: asset.dataUrl, width: element.width, height: element.height, preserveAspectRatio: 'xMidYMid slice', 'clip-path': `url(#${clipId})`, opacity: element.opacity })}/>`;
   }
   if (element.kind === 'qr') {
-    const svg = await firstRenderable(qrCandidates(element, design), (value) =>
-      QRCode.toString(value, { ...QR_OPTIONS, type: 'svg', color: { dark: design.theme.text, light: '#00000000' } })
-    );
-    if (!svg) return `<rect ${attrs({ width: element.width, height: element.height, fill: 'transparent', stroke: design.theme.text, 'stroke-dasharray': '4 4' })}/>`;
+    const svg = await exportQrSvg(design, element);
     const viewBoxMatch = svg.match(/viewBox="([^"]+)"/);
     const viewBox = viewBoxMatch ? viewBoxMatch[1] : '0 0 25 25';
     return `<svg ${attrs({ width: element.width, height: element.height, viewBox, opacity: element.opacity })}>${svg.replace(/<\?xml.*?\?>|<svg[^>]*>|<\/svg>/g, '')}</svg>`;

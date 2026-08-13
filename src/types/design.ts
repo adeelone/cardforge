@@ -6,6 +6,8 @@ export type Density = 'compact' | 'regular' | 'airy';
 export type Alignment = 'left' | 'center' | 'right';
 export type CardPreset = 'us' | 'eu' | 'jp' | 'uk' | 'square' | 'mini';
 export type Orientation = 'landscape' | 'portrait';
+export type QrPattern = 'square' | 'rounded' | 'dots';
+export type QrErrorCorrection = 'L' | 'M' | 'Q' | 'H';
 
 export interface ContactItem {
   id: string;
@@ -109,6 +111,28 @@ export interface DesignMeta {
   templateId: string;
 }
 
+export interface QrStyle {
+  pattern: QrPattern;
+  foreground: string;
+  background: string;
+  margin: number;
+  errorCorrection: QrErrorCorrection;
+  centerMark: boolean;
+}
+
+export interface SharePreferences {
+  includeEmail: boolean;
+  includePhone: boolean;
+  includeWebsite: boolean;
+  includeSocial: boolean;
+  includeAddress: boolean;
+  includePronouns: boolean;
+  includeTagline: boolean;
+  includeImages: boolean;
+  allowVcard: boolean;
+  expiresAt: string | null;
+}
+
 export interface Design {
   meta: DesignMeta;
   identity: Identity;
@@ -118,4 +142,6 @@ export interface Design {
   elements: DesignElement[];
   variants: DesignVariant[];
   assets: DesignAsset[];
+  qrStyle: QrStyle;
+  share: SharePreferences;
 }

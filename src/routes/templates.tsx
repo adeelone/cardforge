@@ -1,15 +1,20 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Search } from 'lucide-react';
 import { templates, createStarterDesign, type TemplateCategory } from '../editor/templates/templates';
 import { CardSvg } from '../editor/canvas/card-svg';
 
-const FILTERS: ('All' | TemplateCategory)[] = ['All', 'Professional', 'Minimal', 'Creative'];
+const FILTERS: ('All' | TemplateCategory)[] = ['All', ...Array.from(new Set(templates.map((template) => template.category)))];
 
 export function TemplatesRoute() {
   const [filter, setFilter] = useState<'All' | TemplateCategory>('All');
+  const [query, setQuery] = useState('');
   const previews = useMemo(() => templates.map((template) => ({ template, design: createStarterDesign(template.id) })), []);
-  const visible = previews.filter(({ template }) => filter === 'All' || template.category === filter);
+  const visible = previews.filter(({ template }) => {
+    const matchesFilter = filter === 'All' || template.category === filter;
+    const needle = query.trim().toLowerCase();
+    return matchesFilter && (!needle || `${template.name} ${template.notes} ${template.category}`.toLowerCase().includes(needle));
+  });
 
   return (
     <main className="page">
@@ -17,6 +22,10 @@ export function TemplatesRoute() {
         <h1>Templates</h1>
         <p>Every layout keeps stable element roles, so your name and contacts survive any switch. Pick one and make it yours.</p>
       </header>
+
+      <div className="template-tools">
+        <label className="search-field"><Search size={16} aria-hidden="true" /><span className="sr-only">Search templates</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search styles or professions" /></label>
+      </div>
 
       <div className="filter-row" role="group" aria-label="Filter templates">
         {FILTERS.map((option) => (

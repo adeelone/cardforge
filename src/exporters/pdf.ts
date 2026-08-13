@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import type { CardSide, Design, DesignElement } from '../types/design';
 import { layoutText } from '../editor/canvas/render-text';
 import { canvasDims } from '../lib/units';
-import { createVCard } from './vcard';
+import { firstRenderable, qrCandidates } from './qr-value';
 
 const PT_PER_MM = 72 / 25.4;
 
@@ -31,13 +31,6 @@ function drawCropMarks(page: import('pdf-lib').PDFPage, bleed: number, width: nu
     [width - bleed, height - bleed + gap, width - bleed, height - bleed + gap + mark]
   ];
   for (const [x1, y1, x2, y2] of points) page.drawLine({ start: { x: x1, y: y1 }, end: { x: x2, y: y2 }, thickness: 0.35, color });
-}
-
-function qrValue(element: DesignElement, design: Design) {
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://cardforge.app';
-  if (element.qrMode === 'vcard') return createVCard(design);
-  if (element.qrMode === 'url') return `${origin}/design/${design.meta.id}`;
-  return `${origin}/c/${design.meta.slug}`;
 }
 
 async function embedAsset(doc: PDFDocument, dataUrl: string) {
@@ -95,9 +88,42 @@ async function drawSide(
       if (embedded) page.drawImage(embedded, { x, y, width: ew, height: eh, opacity });
     }
     if (element.kind === 'qr') {
-      const qrDataUrl = await QRCode.toDataURL(qrValue(element, design), { margin: 1, color: { dark: design.theme.text, light: '#ffffff' } });
-      const qrImage = await doc.embedPng(qrDataUrl);
-      page.drawImage(qrImage, { x, y, width: ew, height: eh, opacity });
+      const code = await firstRenderable(qrCandidates(element, design), async (value) =>
+        QRCode.create(value, { errorCorrectionLevel: design.qrStyle.errorCorrection })
+      );
+      if (!code) continue;
+      const margin = design.qrStyle.margin;
+      const total = code.modules.size + margin * 2;
+      const module = Math.min(ew, eh) / total;
+      const qrWidth = module * total;
+      const qrX = x + (ew - qrWidth) / 2;
+      const qrY = y + (eh - qrWidth) / 2;
+      const foreground = hexToRgb(design.qrStyle.foreground);
+      const background = hexToRgb(design.qrStyle.background);
+      page.drawRectangle({ x: qrX, y: qrY, width: qrWidth, height: qrWidth, color: background, opacity });
+      for (let index = 0; index < code.modules.data.length; index += 1) {
+        if (!code.modules.data[index]) continue;
+        const column = index % code.modules.size;
+        const row = Math.floor(index / code.modules.size);
+        const mx = qrX + (margin + column) * module;
+        const my = qrY + (margin + code.modules.size - row - 1) * module;
+        if (design.qrStyle.pattern === 'dots') {
+          page.drawCircle({ x: mx + module / 2, y: my + module / 2, size: module * 0.43, color: foreground, opacity });
+        } else {
+          const inset = design.qrStyle.pattern === 'rounded' ? module * 0.08 : 0;
+          page.drawRectangle({ x: mx + inset, y: my + inset, width: module - inset * 2, height: module - inset * 2, color: foreground, opacity });
+        }
+      }
+      if (design.qrStyle.centerMark) {
+        const mark = module * Math.max(5, Math.floor(code.modules.size * 0.2));
+        const cx = qrX + qrWidth / 2;
+        const cy = qrY + qrWidth / 2;
+        page.drawCircle({ x: cx, y: cy, size: mark * 0.58, color: background, opacity });
+        page.drawCircle({ x: cx, y: cy, size: mark * 0.43, color: foreground, opacity });
+        const initial = (design.identity.company.trim().charAt(0) || design.identity.name.trim().charAt(0) || 'C').toUpperCase();
+        const initialSize = mark * 0.52;
+        page.drawText(initial, { x: cx - bold.widthOfTextAtSize(initial, initialSize) / 2, y: cy - initialSize * 0.34, size: initialSize, font: bold, color: background, opacity });
+      }
     }
   }
   drawCropMarks(page, bleed, width, height);
@@ -137,12 +163,24 @@ function drawPdfText(
 }
 
 export async function exportPdf(design: Design) {
+  return exportDesignsPdf([design]);
+}
+
+async function exportDesignsPdf(designs: Design[]) {
   const doc = await PDFDocument.create();
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
-  await drawSide(doc, design, 'front', font, bold);
-  await drawSide(doc, design, 'back', font, bold);
+  for (const design of designs) {
+    await drawSide(doc, design, 'front', font, bold);
+    await drawSide(doc, design, 'back', font, bold);
+  }
   const bytes = await doc.save();
   const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   return new Blob([buffer], { type: 'application/pdf' });
+}
+
+export async function exportRosterPdf(design: Design) {
+  if (!design.variants.length) throw new Error('No roster variants to export');
+  const designs = design.variants.map((variant) => ({ ...design, identity: variant.identity, contacts: variant.contacts }));
+  return exportDesignsPdf(designs);
 }

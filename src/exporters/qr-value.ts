@@ -25,5 +25,3 @@ export async function firstRenderable<T>(candidates: string[], render: (value: s
   }
   return null;
 }
-
-export const QR_OPTIONS = { margin: 1, errorCorrectionLevel: 'L' as const };

@@ -10,7 +10,11 @@ It runs anonymous-first in the browser, saves designs locally, and exports PDF (
 - **Real typography** — 10 self-hosted typefaces (via `@fontsource`) with curated heading/body pairings, so every template renders in its true typeface, online or offline.
 - **True card geometry** — the canvas tracks each preset's real aspect ratio (US, EU, JP, UK, square, mini; landscape/portrait) instead of forcing everything into a landscape box.
 - **Digital cards** — share a link or QR that opens a tappable digital card and saves the recipient's contact. The link is serverless (the design travels in the URL) and survives `URLSearchParams` round-trips.
-- **Resilient QR** — QR content degrades gracefully (full link → link without heavy image assets → vCard → short link) so a scannable code always renders.
+- **Private sharing controls** — choose exactly which contact fields, pronouns, tagline, and images enter a link; optionally expire the card and disable vCard downloads.
+- **Custom QR studio** — square, rounded, or dot modules; custom ink and paper; quiet-zone and correction controls; optional center initial; consistent preview and SVG export.
+- **16 templates** — professional, minimal, creative, personal, student, and small-business layouts with content-preserving switching.
+- **Resilient QR** — QR content degrades gracefully (filtered link → link without image assets → vCard → short link) so a scannable code can still render.
+- **Trust and legal pages** — in-app security model, sharing guide, privacy notice, terms, accessibility statement, and help.
 - **Working dark mode** and mm/inch units, applied app-wide.
 - **Accessibility** — WCAG AA contrast check on card colors, focus-visible outlines, keyboard nudging/delete/duplicate/undo.
 
@@ -60,14 +64,19 @@ Copy `.env.example` to `.env.local` when enabling optional features.
 
 Optional sync, LLM copy helpers, analytics, and background removal are intentionally off by default. No network calls are made by those features when disabled.
 
-## Assumptions
+## Security model
 
-- The first version prioritizes a complete local editor and export path over accounts or hosted short links.
-- True CMYK conversion is documented as an external print-production step rather than bundled into the app.
-- PDF text is vector text with standard embedded PDF fonts in v0.1; custom font subsetting is a follow-up.
-- QR code rendering in the SVG preview is generated client-side.
+- Shared and imported design payloads are size-capped and structurally validated.
+- Imported assets are limited to PNG, JPEG, and WEBP data URLs; active SVG uploads are not accepted.
+- Public contact links allow only validated `http`, `https`, `mailto`, and `tel` destinations.
+- Static-host configs add CSP, anti-framing, MIME-sniffing, referrer, permissions, opener, and resource policies. GitHub Pages cannot provide custom response headers, so an equivalent meta CSP is included there.
+- Share payloads are encoded, not encrypted. Anyone with a link can read or forward included fields.
+
+See the in-app Trust Center and [SECURITY.md](SECURITY.md) for boundaries and reporting.
 
 ## Deploy
+
+For a school or business pilot, use Vercel or Netlify with a custom domain so the configured HTTP security headers are active. See [DEPLOYMENT.md](DEPLOYMENT.md) for DNS, TLS, verification, monitoring, and rollback steps. See [ORGANIZATION_PILOT.md](ORGANIZATION_PILOT.md) for a responsible cohort rollout.
 
 ### Vercel
 
@@ -99,9 +108,10 @@ npm run test
 npm run build
 ```
 
-## Next Steps
+## Known boundaries
 
 - Embed/subset the self-hosted fonts into PDF export (PDF currently uses standard Helvetica; the canvas, PNG, and SVG use the true typefaces).
 - Add CSV batch export for teams.
 - Add optional hosted short links so image-heavy digital cards aren't limited by URL length.
 - Add NFC writer companion and wallet pass export.
+- True CMYK conversion remains an external print-production step.

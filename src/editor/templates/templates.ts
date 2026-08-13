@@ -1,8 +1,9 @@
 import type { Design, DesignElement, Theme } from '../../types/design';
 import { createId, slugify } from '../../lib/id';
 import { presetSize } from '../../lib/units';
+import { DEFAULT_QR_STYLE, DEFAULT_SHARE_PREFERENCES } from '../../lib/design-security';
 
-export type TemplateCategory = 'Professional' | 'Minimal' | 'Creative';
+export type TemplateCategory = 'Professional' | 'Minimal' | 'Creative' | 'Personal' | 'Student' | 'Small Business';
 
 export interface TemplateDefinition {
   id: string;
@@ -241,6 +242,98 @@ export const templates: TemplateDefinition[] = [
       el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 28, y: 42, width: 240, height: 96, text: '{contacts}', fill: '#fff5f0', fontSize: 10, z: 2 }),
       el({ id: 'qr', side: 'back', kind: 'qr', label: 'QR code', x: 276, y: 110, width: 48, height: 48, qrMode: 'digital', z: 2 })
     ]
+  },
+  {
+    id: 'kindred',
+    name: 'Kindred',
+    notes: 'A warm, personal introduction for independent consultants and community builders.',
+    category: 'Personal',
+    theme: { ...baseTheme, brand: '#194f42', surface: '#fffdf8', text: '#18322c', accent: '#e36f51', headingFont: 'Fraunces', bodyFont: 'Inter' },
+    elements: [
+      el({ id: 'corner', side: 'front', kind: 'shape', shape: 'ellipse', label: 'Personal mark', x: 278, y: 28, width: 28, height: 28, fill: '#e36f51', z: 1 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 28, y: 44, width: 230, height: 58, text: '{name}', fontSize: 31, z: 2 }),
+      el({ id: 'title', side: 'front', kind: 'text', role: 'title', label: 'Title', x: 30, y: 112, width: 240, height: 18, text: '{title}', fill: '#e36f51', fontSize: 11, z: 2 }),
+      el({ id: 'company', side: 'front', kind: 'text', role: 'company', label: 'Company', x: 30, y: 140, width: 220, height: 18, text: '{company}', fontSize: 11, z: 2 }),
+      el({ id: 'tagline', side: 'back', kind: 'text', role: 'body', label: 'Tagline', x: 28, y: 34, width: 220, height: 50, text: '{tagline}', fontSize: 15, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 28, y: 104, width: 220, height: 64, text: '{contacts}', fontSize: 9, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'QR code', x: 272, y: 104, width: 54, height: 54, qrMode: 'digital', z: 2 })
+    ]
+  },
+  {
+    id: 'campus',
+    name: 'Campus',
+    notes: 'Clear, confident hierarchy for students, researchers, and early-career portfolios.',
+    category: 'Student',
+    theme: { ...baseTheme, brand: '#173f73', surface: '#ffffff', text: '#12243a', accent: '#ef8354', headingFont: 'Manrope', bodyFont: 'Inter' },
+    elements: [
+      el({ id: 'top-rule', side: 'front', kind: 'shape', shape: 'rect', label: 'Top rule', x: 0, y: 0, width: 336, height: 10, fill: '#173f73', z: 0 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 26, y: 40, width: 270, height: 34, text: '{name}', fontSize: 24, z: 2 }),
+      el({ id: 'title', side: 'front', kind: 'text', role: 'title', label: 'Focus', x: 28, y: 82, width: 260, height: 18, text: '{title}', fill: '#173f73', fontSize: 11, z: 2 }),
+      el({ id: 'department', side: 'front', kind: 'text', role: 'body', label: 'Department', x: 28, y: 124, width: 250, height: 18, text: '{department}', fontSize: 10, z: 2 }),
+      el({ id: 'company', side: 'front', kind: 'text', role: 'company', label: 'School or company', x: 28, y: 148, width: 250, height: 18, text: '{company}', fontSize: 10, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 26, y: 40, width: 240, height: 110, text: '{contacts}', fontSize: 10, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'Portfolio QR', x: 278, y: 108, width: 48, height: 48, qrMode: 'digital', z: 2 })
+    ]
+  },
+  {
+    id: 'corner-shop',
+    name: 'Corner Shop',
+    notes: 'Friendly, readable, and practical for neighborhood shops, cafes, and local services.',
+    category: 'Small Business',
+    theme: { ...baseTheme, brand: '#245b47', surface: '#fffaf1', text: '#24211d', accent: '#df674b', headingFont: 'Fraunces', bodyFont: 'Manrope' },
+    elements: [
+      el({ id: 'footer', side: 'front', kind: 'shape', shape: 'rect', label: 'Footer', x: 0, y: 154, width: 336, height: 38, fill: '#245b47', z: 0 }),
+      el({ id: 'company', side: 'front', kind: 'text', role: 'company', label: 'Business name', x: 24, y: 36, width: 280, height: 40, text: '{company}', fontSize: 28, z: 2 }),
+      el({ id: 'tagline', side: 'front', kind: 'text', role: 'body', label: 'Promise', x: 26, y: 88, width: 250, height: 30, text: '{tagline}', fontSize: 12, z: 2 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 24, y: 164, width: 160, height: 16, text: '{name}', fill: '#ffffff', fontSize: 10, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 26, y: 38, width: 230, height: 110, text: '{contacts}', fontSize: 10, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'Visit QR', x: 276, y: 106, width: 52, height: 52, qrMode: 'digital', z: 2 })
+    ]
+  },
+  {
+    id: 'field-notes',
+    name: 'Field Notes',
+    notes: 'An understated editorial layout for writers, photographers, and researchers.',
+    category: 'Creative',
+    theme: { ...baseTheme, brand: '#36534a', surface: '#f7f4ed', text: '#202522', accent: '#cc6547', headingFont: 'Playfair Display', bodyFont: 'IBM Plex Mono' },
+    elements: [
+      el({ id: 'index', side: 'front', kind: 'text', role: 'custom', label: 'Index', x: 25, y: 26, width: 80, height: 16, text: '01 / PROFILE', fill: '#cc6547', fontSize: 8, z: 2 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 24, y: 62, width: 280, height: 42, text: '{name}', fontSize: 29, z: 2 }),
+      el({ id: 'rule', side: 'front', kind: 'shape', shape: 'line', label: 'Rule', x: 24, y: 116, width: 288, height: 1, stroke: '#36534a', z: 1 }),
+      el({ id: 'title', side: 'front', kind: 'text', role: 'title', label: 'Title', x: 25, y: 136, width: 250, height: 18, text: '{title}', fontSize: 10, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 24, y: 34, width: 240, height: 116, text: '{contacts}', fontSize: 9, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'QR code', x: 278, y: 110, width: 48, height: 48, qrMode: 'digital', z: 2 })
+    ]
+  },
+  {
+    id: 'workbench',
+    name: 'Workbench',
+    notes: 'Hardworking typography for makers, contractors, repair shops, and hands-on trades.',
+    category: 'Small Business',
+    theme: { ...baseTheme, brand: '#293633', surface: '#f4f5f1', text: '#1b2422', accent: '#e07a3f', headingFont: 'Bebas Neue', bodyFont: 'IBM Plex Sans' },
+    elements: [
+      el({ id: 'side-rail', side: 'front', kind: 'shape', shape: 'rect', label: 'Side rail', x: 304, y: 0, width: 32, height: 192, fill: '#e07a3f', z: 0 }),
+      el({ id: 'company', side: 'front', kind: 'text', role: 'company', label: 'Business name', x: 24, y: 30, width: 250, height: 30, text: '{company}', fontSize: 23, z: 2 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 24, y: 100, width: 220, height: 26, text: '{name}', fontSize: 18, z: 2 }),
+      el({ id: 'title', side: 'front', kind: 'text', role: 'title', label: 'Trade', x: 25, y: 134, width: 220, height: 18, text: '{title}', fill: '#e07a3f', fontSize: 10, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 24, y: 40, width: 235, height: 104, text: '{contacts}', fontSize: 10, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'Quote QR', x: 276, y: 108, width: 50, height: 50, qrMode: 'digital', z: 2 })
+    ]
+  },
+  {
+    id: 'care-practice',
+    name: 'Care Practice',
+    notes: 'Calm and accessible for wellness, counseling, education, and community care.',
+    category: 'Professional',
+    theme: { ...baseTheme, brand: '#2c665b', surface: '#ffffff', text: '#203632', accent: '#6aaed6', headingFont: 'Fraunces', bodyFont: 'Inter' },
+    elements: [
+      el({ id: 'halo', side: 'front', kind: 'shape', shape: 'ellipse', label: 'Accent circle', x: 256, y: 30, width: 52, height: 52, fill: '#dceff5', z: 0 }),
+      el({ id: 'name', side: 'front', kind: 'text', role: 'name', label: 'Name', x: 28, y: 44, width: 220, height: 34, text: '{name}', fontSize: 24, z: 2 }),
+      el({ id: 'title', side: 'front', kind: 'text', role: 'title', label: 'Title', x: 30, y: 88, width: 230, height: 18, text: '{title}', fontSize: 11, z: 2 }),
+      el({ id: 'company', side: 'front', kind: 'text', role: 'company', label: 'Practice', x: 30, y: 130, width: 230, height: 18, text: '{company}', fill: '#2c665b', fontSize: 11, z: 2 }),
+      el({ id: 'contact', side: 'back', kind: 'text', role: 'body', label: 'Contact stack', x: 28, y: 38, width: 235, height: 110, text: '{contacts}', fontSize: 10, z: 2 }),
+      el({ id: 'qr', side: 'back', kind: 'qr', label: 'Contact QR', x: 276, y: 108, width: 50, height: 50, qrMode: 'digital', z: 2 })
+    ]
   }
 ];
 
@@ -289,6 +382,8 @@ export function createStarterDesign(templateId = 'atelier'): Design {
     theme: template.theme,
     elements: template.elements.map((element) => ({ ...element })),
     variants: [{ id: createId('variant'), name: 'Default', identity, contacts }],
-    assets: []
+    assets: [],
+    qrStyle: { ...DEFAULT_QR_STYLE },
+    share: { ...DEFAULT_SHARE_PREFERENCES }
   };
 }

@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Outlet, NavLink, Link } from 'react-router-dom';
-import { FolderOpen, LayoutTemplate, Moon, Pencil, Plus, Settings, Sun } from 'lucide-react';
+import { FolderOpen, LayoutTemplate, Moon, Pencil, Plus, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
 import { applyTheme, getThemePreference, setThemePreference, useSystemThemeSync } from './theme';
 
 const links = [
   { to: '/new', label: 'Editor', icon: Pencil },
   { to: '/templates', label: 'Templates', icon: LayoutTemplate },
-  { to: '/library', label: 'Library', icon: FolderOpen },
-  { to: '/settings', label: 'Settings', icon: Settings }
+  { to: '/library', label: 'My cards', icon: FolderOpen },
+  { to: '/organizations', label: 'For teams', icon: Users },
+  { to: '/trust', label: 'Trust', icon: ShieldCheck }
 ];
 
 function currentResolved() {
@@ -44,9 +45,11 @@ export function AppShell() {
           })}
         </nav>
         <div className="topbar-actions">
+          <span className="local-status" title="Designs stay in this browser"><span /> Local only</span>
           <button type="button" className="icon-button" onClick={toggleTheme} aria-label="Toggle color theme" title="Toggle theme">
             {resolved === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
           </button>
+          <Link to="/settings" className="icon-button link-button" aria-label="Settings" title="Settings"><Settings size={17} /></Link>
           <Link to="/new" className="primary-button compact"><Plus size={16} />New card</Link>
         </div>
       </header>
