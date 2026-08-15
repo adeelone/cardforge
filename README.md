@@ -53,7 +53,7 @@ npm run build
 
 ## Environment
 
-CardForge 0.3.1 requires and reads no environment variables. Do not put secrets in `VITE_*` variables because Vite embeds those values in public browser code. `.env.example` records that boundary for deployment tools.
+CardForge 0.3.2 requires and reads no environment variables. Do not put secrets in `VITE_*` variables because Vite embeds those values in public browser code. `.env.example` records that boundary for deployment tools.
 
 ## Security model
 

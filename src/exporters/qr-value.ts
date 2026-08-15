@@ -1,6 +1,18 @@
 import type { Design, DesignElement } from '../types/design';
 import { createVCard } from './vcard';
 import { buildShareUrl, shareBase } from './share-link';
+import { safeExternalHref } from '../lib/design-security';
+
+export function qrExternalDestination(element: DesignElement): string | undefined {
+  if (element.qrMode !== 'linkedin' && element.qrMode !== 'custom') return undefined;
+  const destination = safeExternalHref(element.qrUrl ?? '');
+  if (!destination) return undefined;
+  if (element.qrMode === 'linkedin') {
+    const hostname = new URL(destination).hostname.toLowerCase();
+    if (hostname !== 'linkedin.com' && !hostname.endsWith('.linkedin.com')) return undefined;
+  }
+  return destination;
+}
 
 /**
  * QR content, in priority order. A serverless digital card must embed its whole
@@ -11,6 +23,10 @@ export function qrCandidates(element: DesignElement, design: Design): string[] {
   const shortLink = `${shareBase()}/c/${design.meta.slug}`;
   if (element.qrMode === 'vcard') return [createVCard(design), shortLink];
   if (element.qrMode === 'url') return [`${shareBase()}/design/${design.meta.id}`];
+  if (element.qrMode === 'linkedin' || element.qrMode === 'custom') {
+    const destination = qrExternalDestination(element);
+    if (destination) return [destination];
+  }
   return [buildShareUrl(design), buildShareUrl(design, { stripAssets: true }), createVCard(design), shortLink];
 }
 

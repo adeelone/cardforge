@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cardforge-v0.3.1';
+const CACHE_NAME = 'cardforge-v0.3.2';
 const SHELL = ['.', 'manifest.webmanifest', 'icon.svg'].map((path) => new URL(path, self.registration.scope).toString());
 const OFFLINE_URL = SHELL[0];
 

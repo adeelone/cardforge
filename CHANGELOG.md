@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 - Responsive editor and QR destinations
+
+- Stabilized the editor on phones with a single document scroll, fixed header/tool collisions, and removed horizontal layout drift.
+- Bound the desktop canvas, tool rail, and inspector to the viewport so every inspector control remains reachable.
+- Added secure LinkedIn and custom URL destinations alongside digital-card and vCard QR modes.
+- Preserved legacy design-link QR data while rejecting unsafe protocols and credential-bearing URLs on import.
+
 ## 0.3.1 - Fresh-release and security hardening
 
 ### Fixed
