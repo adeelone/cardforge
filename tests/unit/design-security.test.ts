@@ -62,6 +62,17 @@ describe('design security boundary', () => {
     expect(MAX_SHARE_PAYLOAD_LENGTH).toBeLessThan(100_000);
   });
 
+  it('keeps safe QR destinations and drops active or credential-bearing URLs', () => {
+    const design = createStarterDesign();
+    const qr = design.elements.find((element) => element.kind === 'qr')!;
+    qr.qrMode = 'custom';
+    qr.qrUrl = 'https://example.com/meet';
+    expect(normalizeDesign(design)?.elements.find((element) => element.id === qr.id)?.qrUrl).toBe('https://example.com/meet');
+
+    qr.qrUrl = 'https://user:pass@example.com/private';
+    expect(normalizeDesign(design)?.elements.find((element) => element.id === qr.id)?.qrUrl).toBeUndefined();
+  });
+
   it('recognizes expired shared cards', () => {
     const design = createStarterDesign();
     design.share.expiresAt = '2020-01-01T00:00:00.000Z';

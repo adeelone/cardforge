@@ -83,7 +83,8 @@ export interface DesignElement {
   gradient?: [string, string];
   strokeWidth?: number;
   // qr
-  qrMode?: 'vcard' | 'url' | 'digital';
+  qrMode?: 'vcard' | 'url' | 'digital' | 'linkedin' | 'custom';
+  qrUrl?: string;
   // image
   assetId?: string;
 }

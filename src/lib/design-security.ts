@@ -125,7 +125,8 @@ export function normalizeDesign(input: unknown): Design | null {
       radius: typeof value.radius === 'number' ? numberValue(value.radius, 0, 1000, 0) : undefined,
       gradient,
       strokeWidth: typeof value.strokeWidth === 'number' ? numberValue(value.strokeWidth, 0, 100, 0) : undefined,
-      qrMode: typeof value.qrMode === 'string' ? enumValue(value.qrMode, ['vcard', 'url', 'digital'] as const, 'digital') : undefined,
+      qrMode: typeof value.qrMode === 'string' ? enumValue(value.qrMode, ['vcard', 'url', 'digital', 'linkedin', 'custom'] as const, 'digital') : undefined,
+      qrUrl: typeof value.qrUrl === 'string' && safeExternalHref(value.qrUrl) ? stringValue(value.qrUrl, 2048) : undefined,
       assetId
     }];
   });
@@ -231,12 +232,19 @@ export function safeContactHref(contact: ContactItem): string | undefined {
   if (contact.kind === 'email') return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? `mailto:${value}` : undefined;
   if (contact.kind === 'phone') return /^[+()\d\s.-]{5,40}$/.test(value) ? `tel:${value.replace(/[^+\d]/g, '')}` : undefined;
   if (contact.kind === 'website' || contact.kind === 'social') {
-    try {
-      const url = new URL(/^https?:\/\//i.test(value) ? value : `https://${value}`);
-      return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : undefined;
-    } catch {
-      return undefined;
-    }
+    return safeExternalHref(value);
   }
   return undefined;
+}
+
+export function safeExternalHref(value: string): string | undefined {
+  const trimmed = value.trim().replace(/[\r\n]/g, '');
+  if (!trimmed || trimmed.length > 2048) return undefined;
+  try {
+    const url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    if ((url.protocol !== 'https:' && url.protocol !== 'http:') || url.username || url.password) return undefined;
+    return url.toString();
+  } catch {
+    return undefined;
+  }
 }

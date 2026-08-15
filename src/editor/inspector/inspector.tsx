@@ -34,6 +34,7 @@ import { templates } from '../templates/templates';
 import { useEditorStore } from '../state/store';
 import { createVCard } from '../../exporters/vcard';
 import { buildShareUrl } from '../../exporters/share-link';
+import { qrExternalDestination } from '../../exporters/qr-value';
 import { downloadBlob, downloadText } from '../../lib/download';
 import { saveDesign } from '../../data/repo/designRepo';
 import { toast } from '../../lib/toast';
@@ -399,6 +400,16 @@ function SelectedPanel({ element }: { element: DesignElement }) {
   const bringToFront = useEditorStore((state) => state.bringToFront);
   const sendToBack = useEditorStore((state) => state.sendToBack);
   const patch = (value: Partial<DesignElement>) => updateElement(element.id, value);
+  const linkedinContact = design.contacts.find(
+    (contact) => contact.kind === 'social' && contact.value.toLowerCase().includes('linkedin.com')
+  )?.value;
+
+  function setQrMode(qrMode: NonNullable<DesignElement['qrMode']>) {
+    patch({
+      qrMode,
+      qrUrl: qrMode === 'linkedin' && !element.qrUrl ? linkedinContact ?? '' : element.qrUrl
+    });
+  }
 
   return (
     <details open className="selected-panel">
@@ -474,7 +485,41 @@ function SelectedPanel({ element }: { element: DesignElement }) {
       ) : null}
 
       {element.kind === 'qr' ? (
-        <label>QR content<select value={element.qrMode ?? 'digital'} onChange={(event) => patch({ qrMode: event.target.value as NonNullable<typeof element.qrMode> })}><option value="digital">Digital card link</option><option value="vcard">vCard contact</option><option value="url">Design URL</option></select></label>
+        <div className="qr-destination-controls">
+          <label>
+            QR destination
+            <select value={element.qrMode ?? 'digital'} onChange={(event) => setQrMode(event.target.value as NonNullable<DesignElement['qrMode']>)}>
+              <option value="digital">Digital card</option>
+              <option value="linkedin">LinkedIn profile</option>
+              <option value="custom">Website or custom link</option>
+              <option value="vcard">vCard contact</option>
+              <option value="url">Design page link</option>
+            </select>
+          </label>
+          {element.qrMode === 'linkedin' || element.qrMode === 'custom' ? (
+            <>
+              <label>
+                {element.qrMode === 'linkedin' ? 'LinkedIn URL' : 'Destination URL'}
+                <input
+                  type="url"
+                  inputMode="url"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  placeholder={element.qrMode === 'linkedin' ? 'linkedin.com/in/your-name' : 'https://example.com'}
+                  value={element.qrUrl ?? ''}
+                  onChange={(event) => patch({ qrUrl: event.target.value })}
+                />
+              </label>
+              {qrExternalDestination(element) ? (
+                <p className="ok">QR destination is ready.</p>
+              ) : (
+                <p className="warning" role="status">
+                  Enter a valid {element.qrMode === 'linkedin' ? 'LinkedIn' : 'http or https'} URL. Until then, the QR keeps your digital card link.
+                </p>
+              )}
+            </>
+          ) : null}
+        </div>
       ) : null}
     </details>
   );
