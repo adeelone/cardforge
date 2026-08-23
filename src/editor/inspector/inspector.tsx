@@ -131,21 +131,26 @@ export function Inspector() {
       toast('Image is larger than 3 MB', 'error');
       return;
     }
-    const bitmap = await createImageBitmap(file);
-    if (bitmap.width > 6000 || bitmap.height > 6000 || bitmap.width * bitmap.height > 24_000_000) {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const oversized = bitmap.width > 6000 || bitmap.height > 6000 || bitmap.width * bitmap.height > 24_000_000;
       bitmap.close();
-      toast('Image dimensions are too large', 'error');
-      return;
+      if (oversized) {
+        toast('Image dimensions are too large', 'error');
+        return;
+      }
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+      addImageAsset({ name: file.name, mime: file.type, dataUrl });
+      toast('Image added');
+    } catch (error) {
+      console.error(error);
+      toast('That image could not be read', 'error');
     }
-    bitmap.close();
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-    addImageAsset({ name: file.name, mime: file.type, dataUrl });
-    toast('Image added');
   }
 
   async function copyShareUrl() {

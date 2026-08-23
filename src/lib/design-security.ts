@@ -126,7 +126,7 @@ export function normalizeDesign(input: unknown): Design | null {
       gradient,
       strokeWidth: typeof value.strokeWidth === 'number' ? numberValue(value.strokeWidth, 0, 100, 0) : undefined,
       qrMode: typeof value.qrMode === 'string' ? enumValue(value.qrMode, ['vcard', 'url', 'digital', 'linkedin', 'custom'] as const, 'digital') : undefined,
-      qrUrl: typeof value.qrUrl === 'string' && safeExternalHref(value.qrUrl) ? stringValue(value.qrUrl, 2048) : undefined,
+      qrUrl: typeof value.qrUrl === 'string' ? safeExternalHref(value.qrUrl) : undefined,
       assetId
     }];
   });

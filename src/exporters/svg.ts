@@ -2,6 +2,7 @@ import type { CardSide, Design, DesignElement } from '../types/design';
 import { layoutText, alignToAnchor, anchorX } from '../editor/canvas/render-text';
 import { fontStack } from '../data/fonts';
 import { canvasDims } from '../lib/units';
+import { safeElementId } from '../lib/id';
 import { exportQrSvg } from './qr-svg';
 
 function escapeXml(value: string) {
@@ -34,7 +35,7 @@ function textElement(element: DesignElement, design: Design) {
 
 function shapeElement(element: DesignElement, design: Design) {
   const shape = element.shape ?? 'rect';
-  const gradientId = element.gradient ? `grad-${element.id}` : undefined;
+  const gradientId = element.gradient ? `grad-${safeElementId(element.id)}` : undefined;
   const fill = gradientId ? `url(#${gradientId})` : element.fill ?? design.theme.brand;
   const defs = element.gradient
     ? `<defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${escapeXml(element.gradient[0])}"/><stop offset="100%" stop-color="${escapeXml(element.gradient[1])}"/></linearGradient></defs>`
@@ -54,7 +55,7 @@ async function elementMarkup(element: DesignElement, design: Design) {
   if (element.kind === 'image') {
     const asset = design.assets.find((item) => item.id === element.assetId);
     if (!asset) return `<rect ${attrs({ width: element.width, height: element.height, fill: 'transparent', stroke: design.theme.accent, 'stroke-dasharray': '4 4' })}/>`;
-    const clipId = `clip-${element.id}`;
+    const clipId = `clip-${safeElementId(element.id)}`;
     return `<defs><clipPath id="${clipId}"><rect ${attrs({ width: element.width, height: element.height, rx: element.radius ?? 0 })}/></clipPath></defs><image ${attrs({ href: asset.dataUrl, width: element.width, height: element.height, preserveAspectRatio: 'xMidYMid slice', 'clip-path': `url(#${clipId})`, opacity: element.opacity })}/>`;
   }
   if (element.kind === 'qr') {

@@ -88,7 +88,9 @@ docker build -t cardforge .
 docker run --rm -p 8080:80 cardforge
 ```
 
-The bundled nginx config serves static assets with cache headers and falls back to `index.html` for client-side routes.
+The bundled nginx config serves static assets with cache headers, sets the same security headers as the Vercel/Netlify configs, and falls back to `index.html` for client-side routes.
+
+The container itself only speaks plain HTTP on port 80 — it does not terminate TLS. Put it behind a reverse proxy or load balancer that does (Caddy, Traefik, an ALB, Cloudflare, etc.) and forwards `X-Forwarded-Proto`; nginx will redirect any plaintext hop it sees to HTTPS. Running the container directly on the public internet without a TLS-terminating proxy in front of it is not a supported configuration.
 
 ## Development
 

@@ -69,8 +69,15 @@ export function variantsFromCsv(text: string, fallback: Design): DesignVariant[]
   });
 }
 
+// A leading =, +, -, @, tab, or CR makes Excel/Sheets read the cell as a
+// formula (CSV/"formula" injection) even though the field is quoted — quoting
+// only escapes CSV structure, it doesn't stop the spreadsheet's own formula
+// detection. Prefixing with an apostrophe forces the cell to plain text.
+const FORMULA_LEADING_CHAR = /^[=+\-@\t\r]/;
+
 function escapeCsv(value: string) {
-  return /[",\r\n]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value;
+  const safe = FORMULA_LEADING_CHAR.test(value) ? `'${value}` : value;
+  return /[",\r\n]/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
 }
 
 export function variantsToCsv(variants: DesignVariant[]) {

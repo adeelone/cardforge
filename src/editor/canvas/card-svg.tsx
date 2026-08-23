@@ -3,6 +3,7 @@ import type { CardSide, Design, DesignElement } from '../../types/design';
 import { layoutText, alignToAnchor, anchorX } from './render-text';
 import { fontStack } from '../../data/fonts';
 import { canvasDims } from '../../lib/units';
+import { safeElementId } from '../../lib/id';
 import { useEditorStore } from '../state/store';
 import { QrImage } from './qr';
 
@@ -40,7 +41,7 @@ function TextElement({ element, design }: { element: DesignElement; design: Desi
 }
 
 function ShapeElement({ element, design }: { element: DesignElement; design: Design }) {
-  const gradientId = element.gradient ? `grad-${element.id}` : undefined;
+  const gradientId = element.gradient ? `grad-${safeElementId(element.id)}` : undefined;
   const fill = gradientId ? `url(#${gradientId})` : element.fill ?? design.theme.brand;
   const shape = element.shape ?? 'rect';
   return (
@@ -106,7 +107,7 @@ function ImageElement({ element, design }: { element: DesignElement; design: Des
       </g>
     );
   }
-  const clipId = `clip-${element.id}`;
+  const clipId = `clip-${safeElementId(element.id)}`;
   return (
     <g opacity={element.opacity}>
       <defs>

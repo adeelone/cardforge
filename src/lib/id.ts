@@ -10,3 +10,16 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
 }
+
+/**
+ * Element/design ids are only type- and length-checked on import
+ * (normalizeDesign), not charset-restricted, so a crafted `.cardforge.json`
+ * or share link can carry arbitrary characters in an id. Use this wherever
+ * an id becomes part of an SVG `id`/`url(#fragment)` reference — as a raw
+ * string in exported markup it's an XML-injection risk, and even in React
+ * (which is safe from injection) stray characters can break the fragment
+ * match and silently drop a gradient or clip path.
+ */
+export function safeElementId(id: string) {
+  return id.replace(/[^a-zA-Z0-9_-]/g, '') || 'el';
+}

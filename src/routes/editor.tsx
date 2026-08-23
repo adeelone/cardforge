@@ -1,24 +1,27 @@
 import { useEffect } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { FolderOpen, LayoutTemplate, QrCode, Shapes, Type } from 'lucide-react';
 import { CanvasStage } from '../editor/canvas/canvas-stage';
 import { Inspector } from '../editor/inspector/inspector';
 import { useEditorStore } from '../editor/state/store';
 import { createStarterDesign } from '../editor/templates/templates';
 import { getDesign, saveDesign } from '../data/repo/designRepo';
-import { decodeSharePayload } from '../exporters/share-link';
+import { decodeSharePayload, extractSharePayload } from '../exporters/share-link';
 import { useUnits } from '../app/theme';
 
 export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
   const { id } = useParams();
   const [params] = useSearchParams();
+  const location = useLocation();
   const design = useEditorStore((state) => state.history.present);
   const setDesign = useEditorStore((state) => state.setDesign);
   const addElement = useEditorStore((state) => state.addElement);
   const units = useUnits();
 
   useEffect(() => {
-    const shared = params.get('d');
+    // Share links live in the URL fragment (#d=...); older links may still
+    // use the query string (?d=...) — extractSharePayload reads either.
+    const shared = extractSharePayload(location.search, location.hash);
     const template = params.get('template');
     if (shared) {
       const decoded = decodeSharePayload(shared);
@@ -29,7 +32,7 @@ export function EditorRoute({ mode }: { mode: 'new' | 'existing' }) {
       getDesign(id).then((stored) => stored && setDesign(stored));
     }
     if (mode === 'new') setDesign(createStarterDesign(template ?? undefined));
-  }, [id, mode, params, setDesign]);
+  }, [id, mode, params, location.search, location.hash, setDesign]);
 
   useEffect(() => {
     const handle = window.setTimeout(() => void saveDesign(design), 700);
