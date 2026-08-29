@@ -8,6 +8,24 @@ const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', impo
 export default defineConfig({
   base: process.env.GITHUB_PAGES === 'true' ? '/cardforge/' : '/',
   plugins: [react()],
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('pdf-lib')) return 'pdf-export';
+          if (id.includes('qrcode')) return 'qr-code';
+          if (id.includes('lucide-react')) return 'icons';
+          if (id.includes('react') || id.includes('scheduler')) return 'react-vendor';
+          if (id.includes('zustand') || id.includes('idb-keyval') || id.includes('lz-string') || id.includes('colord')) {
+            return 'editor-vendor';
+          }
+          return undefined;
+        }
+      }
+    }
+  },
   worker: {
     format: 'es'
   },

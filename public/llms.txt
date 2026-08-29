@@ -1,0 +1,25 @@
+# CardForge
+
+> CardForge is a free, open-source, local-first web application for designing print-ready and digital business cards.
+
+CardForge runs in the browser without an account. Designs and uploaded images stay in browser storage unless a user explicitly exports or shares them. It supports freeform front-and-back editing, professional templates, customizable QR codes, vCard output, PNG and SVG export, and print-ready PDF export with bleed and crop marks.
+
+## Primary pages
+
+- Home: https://adeelone.github.io/cardforge/
+- Templates: https://adeelone.github.io/cardforge/templates
+- Schools and teams: https://adeelone.github.io/cardforge/organizations
+- Security and trust: https://adeelone.github.io/cardforge/trust
+- Sharing model: https://adeelone.github.io/cardforge/sharing
+- Privacy policy: https://adeelone.github.io/cardforge/privacy
+- Terms of use: https://adeelone.github.io/cardforge/terms
+- Accessibility: https://adeelone.github.io/cardforge/accessibility
+- Help: https://adeelone.github.io/cardforge/help
+- Source: https://github.com/adeelone/cardforge
+
+## Important boundaries
+
+- The hosted app has no user accounts, analytics, advertising, or server-side design database.
+- Share-link payloads are encoded, not encrypted. Anyone who receives a link can read and forward its selected content.
+- CardForge is not represented as FERPA, COPPA, HIPAA, payment, identity, or records-retention compliant.
+- Generated cards should be reviewed for content, accessibility, QR scanning, dimensions, bleed, and print-provider requirements.

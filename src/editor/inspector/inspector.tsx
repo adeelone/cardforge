@@ -162,9 +162,14 @@ export function Inspector() {
     }
   }
 
-  function save() {
-    void saveDesign(design);
-    toast('Design saved locally');
+  async function save() {
+    try {
+      await saveDesign(design);
+      toast('Design saved locally');
+    } catch (error) {
+      console.error(error);
+      toast('Could not save — check available storage', 'error');
+    }
   }
 
   async function importRoster(file: File | null) {
@@ -203,7 +208,7 @@ export function Inspector() {
           <button type="button" className="icon-button" onClick={undo} aria-label="Undo" title="Undo (Ctrl+Z)"><Undo2 size={16} /></button>
           <button type="button" className="icon-button" onClick={redo} aria-label="Redo" title="Redo (Ctrl+Shift+Z)"><Redo2 size={16} /></button>
           <button type="button" className="icon-button" onClick={swapSides} aria-label="Swap front and back" title="Swap sides"><Shuffle size={16} /></button>
-          <button type="button" className="primary-button" onClick={save}><Save size={15} />Save</button>
+          <button type="button" className="primary-button" onClick={() => void save()}><Save size={15} />Save</button>
         </div>
       </div>
 
@@ -243,7 +248,7 @@ export function Inspector() {
         </div>
       </details>
 
-      <details open>
+      <details>
         <summary><Type size={16} /> Identity</summary>
         <label>Name<input value={design.identity.name} onChange={(event) => updateIdentity({ name: event.target.value })} /></label>
         <div className="two-grid">
@@ -257,7 +262,7 @@ export function Inspector() {
         <label>Tagline<textarea value={design.identity.tagline} onChange={(event) => updateIdentity({ tagline: event.target.value })} /></label>
       </details>
 
-      <details open>
+      <details>
         <summary><LinkIcon size={16} /> Contact</summary>
         {design.contacts.map((contact) => (
           <div className="row-editor" key={contact.id}>
@@ -276,7 +281,7 @@ export function Inspector() {
         <button type="button" className="ghost-button" onClick={addContact}><Plus size={15} /> Add row</button>
       </details>
 
-      <details open>
+      <details>
         <summary><QrCode size={16} /> QR style</summary>
         <div className="align-row" role="group" aria-label="QR module style">
           {(['square', 'rounded', 'dots'] as const).map((pattern) => (
@@ -295,7 +300,7 @@ export function Inspector() {
         <p className="muted">Print-test custom QR codes at their final size before ordering cards.</p>
       </details>
 
-      <details open>
+      <details>
         <summary><Type size={16} /> Typography</summary>
         <div className="two-grid">
           <FontSelect label="Heading" value={design.theme.headingFont} onChange={(value) => updateTheme({ headingFont: value, bodyFont: FONT_PAIRINGS[value] ?? design.theme.bodyFont })} />
@@ -311,7 +316,7 @@ export function Inspector() {
         </div>
       </details>
 
-      <details open>
+      <details>
         <summary><Palette size={16} /> Color</summary>
         <div className="color-grid">
           <label className="color-chip">Brand<input type="color" value={design.theme.brand} onChange={(event) => updateTheme({ brand: event.target.value })} /></label>
@@ -325,7 +330,7 @@ export function Inspector() {
         </p>
       </details>
 
-      <details open>
+      <details>
         <summary><Layers size={16} /> Layers</summary>
         <div className="layer-list">
           {[...design.elements].sort((a, b) => b.z - a.z).map((element) => (
@@ -347,7 +352,7 @@ export function Inspector() {
         </div>
       </details>
 
-      <details open>
+      <details>
         <summary><Users size={16} /> Team & roster <span className="kind-tag">{design.variants.length}</span></summary>
         <p className="muted">Reuse this layout for a class, cohort, program, or team. CSV processing stays on this device.</p>
         <div className="variant-list">
@@ -365,7 +370,7 @@ export function Inspector() {
         <input ref={rosterRef} type="file" accept="text/csv,.csv" hidden onChange={(event) => { void importRoster(event.target.files?.[0] ?? null); event.target.value = ''; }} />
       </details>
 
-      <details open>
+      <details>
         <summary><ShieldCheck size={16} /> Privacy & sharing</summary>
         <p className="trust-note"><ShieldCheck size={15} /> Only the fields enabled below are placed in a share link.</p>
         <div className="share-toggle-grid">
@@ -384,7 +389,7 @@ export function Inspector() {
         <button type="button" className="primary-button full" onClick={() => void copyShareUrl()}><LinkIcon size={15} />Copy digital card link</button>
       </details>
 
-      <details open>
+      <details>
         <summary><Download size={16} /> Export</summary>
         <div className="export-grid">
           {(['pdf', 'png', 'svg', 'vcf', 'qr', 'json'] as const).map((kind) => (

@@ -22,16 +22,26 @@ export function LibraryRoute() {
   }, []);
 
   async function duplicate(design: Design) {
-    await saveDesign({ ...design, meta: { ...design.meta, id: createId('design'), name: `${design.meta.name} copy` } });
-    await refresh();
-    toast('Design duplicated');
+    try {
+      await saveDesign({ ...design, meta: { ...design.meta, id: createId('design'), name: `${design.meta.name} copy` } });
+      await refresh();
+      toast('Design duplicated');
+    } catch (error) {
+      console.error(error);
+      toast('Could not duplicate — check available storage', 'error');
+    }
   }
 
   async function remove(id: string) {
     if (!window.confirm('Delete this design permanently?')) return;
-    await deleteDesign(id);
-    await refresh();
-    toast('Design deleted');
+    try {
+      await deleteDesign(id);
+      await refresh();
+      toast('Design deleted');
+    } catch (error) {
+      console.error(error);
+      toast('Could not delete this design', 'error');
+    }
   }
 
   async function importDesign(file: File | null) {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink, Link } from 'react-router-dom';
 import { FolderOpen, LayoutTemplate, Moon, Pencil, Plus, Settings, ShieldCheck, Sun, Users } from 'lucide-react';
 import { applyTheme, getThemePreference, setThemePreference, useSystemThemeSync } from './theme';
+import { Seo } from './seo';
 
 const links = [
   { to: '/new', label: 'Editor', icon: Pencil },
@@ -28,6 +29,7 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
+      <Seo />
       <header className="topbar">
         <NavLink to="/" className="brand" aria-label="CardForge home">
           <span className="brand-mark" aria-hidden="true">CF</span>

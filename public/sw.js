@@ -17,10 +17,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
-});
-
 async function networkFirstNavigation(request) {
   try {
     const response = await fetch(request, { cache: 'no-store' });

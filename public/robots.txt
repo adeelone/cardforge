@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
+# Public product and policy pages are available to search and AI crawlers.
+
 Sitemap: https://adeelone.github.io/cardforge/sitemap.xml

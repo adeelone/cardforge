@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import { AppShell } from './shell';
 import { LandingRoute } from '../routes/landing';
 import { EditorRoute } from '../routes/editor';
@@ -10,6 +10,7 @@ import { TrustRoute } from '../routes/trust';
 import { SharingRoute } from '../routes/sharing';
 import { AccessibilityRoute, HelpRoute, PrivacyRoute, TermsRoute } from '../routes/info-pages';
 import { OrganizationsRoute } from '../routes/organizations';
+import { NotFoundRoute } from '../routes/not-found';
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
 
@@ -34,7 +35,7 @@ export function createAppRouter() {
           { path: 'accessibility', element: <AccessibilityRoute /> },
           { path: 'help', element: <HelpRoute /> },
           { path: 'c/:slug', element: <PublicCardRoute /> },
-          { path: '*', element: <Navigate to="/" replace /> }
+          { path: '*', element: <NotFoundRoute /> }
         ]
       }
     ],

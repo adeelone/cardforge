@@ -3,13 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CardForge</title>
-    <script>
-      const firstSegment = location.pathname.split('/').filter(Boolean)[0] || '';
-      const base = firstSegment ? `/${firstSegment}/` : '/';
-      const redirect = location.pathname + location.search + location.hash;
-      location.replace(`${base}?redirect=${encodeURIComponent(redirect)}`);
-    </script>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="The requested CardForge page could not be found." />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-A/9kTkHHw0rcTSJxkRxgceFU+ODBMj2RNe2EtqeazNA='; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'" />
+    <title>Page not found | CardForge</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <style>
+      :root { color-scheme: light dark; font-family: Inter, system-ui, sans-serif; background: #f5f7f4; color: #17211e; }
+      body { margin: 0; min-width: 320px; }
+      main { min-height: 100vh; display: grid; place-content: center; gap: 1rem; width: min(680px, calc(100% - 3rem)); margin: auto; }
+      p { margin: 0; color: #5f6964; line-height: 1.6; }
+      strong { color: #d96548; }
+      h1 { margin: 0; font-family: Georgia, serif; font-size: 4rem; line-height: 1; }
+      a { width: fit-content; margin-top: 0.75rem; padding: 0.75rem 1rem; border-radius: 6px; background: #164f40; color: #fff; font-weight: 700; text-decoration: none; }
+      @media (prefers-color-scheme: dark) { :root { background: #111714; color: #eef3ef; } p { color: #a4afa9; } }
+      @media (max-width: 640px) { h1 { font-size: 2.4rem; } }
+    </style>
+    <script>if(location.hostname.endsWith('github.io')){const p=location.pathname.split('/').filter(Boolean)[0]||'';const b=p?`/${p}/`:'/';const r=location.pathname+location.search+location.hash;location.replace(`${b}?redirect=${encodeURIComponent(r)}`)}</script>
   </head>
-  <body></body>
+  <body>
+    <main>
+      <strong>404</strong>
+      <h1>This page is not in the deck.</h1>
+      <p>The link may be outdated, incomplete, or meant for a card that is no longer available.</p>
+      <a href="/">Back to CardForge</a>
+    </main>
+  </body>
 </html>
