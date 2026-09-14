@@ -1,6 +1,6 @@
 # CardForge Production Audit
 
-Date: 2026-08-12
+Date: 2026-09-12
 Repo: `adeelone/cardforge`
 Branch: `main`
 
@@ -18,13 +18,13 @@ The application is deployable as static assets from `dist/`. GitHub Pages, Verce
 - Local CSV roster import/export, reusable variants, and multi-person print PDF export.
 - Share-link route using encoded design payloads.
 - Public card route for encoded shared cards.
-- Static landing, settings, Trust Center, sharing guide, privacy, terms, accessibility, help, and fallback routing.
+- Static landing, settings, Trust Center, sharing guide, privacy, terms, accessibility, help, generated route HTML, and a real 404 fallback.
 - Export support for PDF, PNG, SVG, vCard, QR SVG, and JSON.
 - PWA manifest and service worker for same-origin static asset caching under both root and GitHub Pages subpath deployments.
 
 ## Environment Variables
 
-No environment variables are required. `.env.example` is informational only; the current app does not read provider keys or make optional-service calls.
+No environment variables are required. `VITE_SITE_ORIGIN` optionally sets public canonical and discovery URLs for custom-domain builds. The app does not read provider keys or make optional-service calls, and no secret may be placed in a `VITE_*` value.
 
 ## Deployment Files
 
@@ -57,6 +57,7 @@ No environment variables are required. `.env.example` is informational only; the
 - Page navigation is network-first and the service worker is release-versioned, update-checked, and scoped to CardForge caches to prevent stale releases.
 - GitHub Pages direct document requests for SPA deep links can return an initial 404; `public/404.html` redirects the browser back into the app route.
 - Export and QR dependencies are lazy-loaded from user actions to reduce the initial editor bundle.
+- Vercel, Netlify, and nginx only rewrite valid dynamic card routes; unknown routes retain an HTTP 404 response.
 - The app is static-first; durable multi-device sync, accounts, team sharing, analytics, and payment workflows are not part of the current deployment.
 
 ## Validation Checklist

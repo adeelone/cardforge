@@ -35,21 +35,25 @@ export function TemplatesRoute() {
         ))}
       </div>
 
-      <div className="template-grid">
-        {visible.map(({ template, design }) => (
-          <article className="template-card" key={template.id}>
-            <div className="template-preview"><CardSvg design={design} side="front" /></div>
-            <div className="template-body">
-              <div className="template-title">
-                <strong>{template.name}</strong>
-                <span className="tag">{template.category}</span>
+      {visible.length === 0 ? (
+        <p className="empty">No templates match "{query}". Try a different word or clear the search.</p>
+      ) : (
+        <div className="template-grid">
+          {visible.map(({ template, design }) => (
+            <article className="template-card" key={template.id}>
+              <div className="template-preview"><CardSvg design={design} side="front" /></div>
+              <div className="template-body">
+                <div className="template-title">
+                  <strong>{template.name}</strong>
+                  <span className="tag">{template.category}</span>
+                </div>
+                <p>{template.notes}</p>
+                <Link to={`/new?template=${template.id}`} className="primary-button full">Use template <ArrowRight size={15} /></Link>
               </div>
-              <p>{template.notes}</p>
-              <Link to={`/new?template=${template.id}`} className="primary-button full">Use template <ArrowRight size={15} /></Link>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

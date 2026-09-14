@@ -1,8 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const dist = new URL('../dist/', import.meta.url);
-const template = await readFile(new URL('index.html', dist), 'utf8');
-const siteOrigin = (process.env.VITE_SITE_ORIGIN || 'https://adeelone.github.io/cardforge').replace(/\/$/, '');
+const defaultSiteOrigin = 'https://adeelone.github.io/cardforge';
+const siteOrigin = (process.env.VITE_SITE_ORIGIN || defaultSiteOrigin).replace(/\/$/, '');
 
 const pages = [
   ['new', 'Business card editor | CardForge', 'Create a private, print-ready business card with freeform editing, real typography, customizable QR codes, and professional exports.', 'Business card editor', false],
@@ -25,6 +25,16 @@ function replaceMeta(html, key, value) {
     `$1${value}$2`
   );
 }
+
+let template = await readFile(new URL('index.html', dist), 'utf8');
+template = template.replace(
+  /<link rel="canonical" href="[^"]*"\s*\/>/,
+  `<link rel="canonical" href="${siteOrigin}/" />`
+);
+template = replaceMeta(template, 'og:url', `${siteOrigin}/`);
+template = replaceMeta(template, 'og:image', `${siteOrigin}/og.png`);
+template = replaceMeta(template, 'twitter:image', `${siteOrigin}/og.png`);
+await writeFile(new URL('index.html', dist), template);
 
 for (const [path, title, description, heading, indexable] of pages) {
   const canonical = `${siteOrigin}/${path}`;
@@ -49,6 +59,12 @@ for (const [path, title, description, heading, indexable] of pages) {
 
 if (/sourceMappingURL=/.test(template)) {
   throw new Error('Production HTML unexpectedly references a source map.');
+}
+
+for (const path of ['sitemap.xml', 'robots.txt', 'llms.txt', '.well-known/security.txt']) {
+  const target = new URL(path, dist);
+  const content = await readFile(target, 'utf8');
+  await writeFile(target, content.replaceAll(defaultSiteOrigin, siteOrigin));
 }
 
 await writeFile(new URL('.nojekyll', dist), '');

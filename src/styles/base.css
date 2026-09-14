@@ -295,6 +295,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .warning { color: var(--danger); font-size: 0.84rem; font-weight: 700; }
 .qr-destination-controls .ok, .qr-destination-controls .warning { margin: 0.35rem 0 0.65rem; }
 .muted { color: var(--text-muted); font-size: 0.82rem; line-height: 1.45; }
+.empty { color: var(--text-muted); padding: 2.5rem 0; text-align: center; }
 
 .layer-list { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
 .layer-row { display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, 32px); gap: 0.25rem; align-items: center; }

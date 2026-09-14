@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Keep canonical, Open Graph, sitemap, crawler, LLM, and security-contact URLs aligned when building for a custom domain.
+- Preserve HTTP 404 responses for unknown routes on Vercel, Netlify, and nginx while retaining direct links for shared and saved cards.
+- Align Content Security Policy hashes across supported deployment targets and remove stale deployment documentation.
+
 ## 0.3.2 - Responsive editor and QR destinations
 
 - Stabilized the editor on phones with a single document scroll, fixed header/tool collisions, and removed horizontal layout drift.

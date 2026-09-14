@@ -1,7 +1,7 @@
 import type { Alignment, Design, DesignElement } from '../../types/design';
 import { fontCategory } from '../../data/fonts';
 
-export function interpolateText(value: string, design: Design) {
+function interpolateText(value: string, design: Design) {
   const contactLines = design.contacts
     .filter((item) => item.value.trim())
     .map((item) => `${item.label}: ${item.value}`)
@@ -16,7 +16,7 @@ export function interpolateText(value: string, design: Design) {
     .replaceAll('{contacts}', contactLines);
 }
 
-export function balancedLines(value: string, max = 24) {
+function balancedLines(value: string, max = 24) {
   if (value.includes('\n') || value.length <= max) return value.split('\n');
   const words = value.split(' ');
   const midpoint = value.length / 2;
@@ -30,7 +30,7 @@ export function balancedLines(value: string, max = 24) {
 }
 
 /** Greedy word-wrap to a max character count per line, preserving explicit newlines. */
-export function wrapLines(value: string, maxChars: number) {
+function wrapLines(value: string, maxChars: number) {
   const out: string[] = [];
   for (const paragraph of value.split('\n')) {
     if (!paragraph.trim()) {
@@ -60,7 +60,7 @@ function advanceRatio(fontFamily: string | undefined, isName: boolean) {
   return isName ? 0.56 : 0.52;
 }
 
-export interface TextLayout {
+interface TextLayout {
   lines: string[];
   fontSize: number;
   fontFamily: string;

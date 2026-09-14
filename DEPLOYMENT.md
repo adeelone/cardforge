@@ -20,14 +20,14 @@ Recommended topology:
 2. Confirm Framework Preset: `Vite`.
 3. Confirm Build Command: `npm run build`.
 4. Confirm Output Directory: `dist`.
-5. Leave environment variables empty; none are required.
+5. Leave environment variables empty for the GitHub Pages canonical, or set public `VITE_SITE_ORIGIN` to the final custom-domain base URL.
 6. Add the production domain in Project Settings > Domains.
 7. Create the DNS records Vercel displays at the domain registrar.
 8. Enable deployment protection for previews if rosters or realistic contact data will be used in testing.
 9. Require the GitHub CI and E2E checks before merging to `main`.
 10. Enable the provider firewall/WAF, restrict public methods to static reads, and alert on deployment or domain changes as described in `PRODUCTION_SECURITY.md`.
 
-`vercel.json` provides SPA rewrites and production security headers.
+`vercel.json` provides dynamic card-route rewrites, real 404 handling through the generated static output, and production security headers.
 
 ## Netlify
 
@@ -37,7 +37,7 @@ Recommended topology:
 4. Add the custom domain and apply the DNS records Netlify provides.
 5. Enable branch deploy protection for non-public test data.
 
-`netlify.toml` provides SPA routing and production security headers.
+`netlify.toml` provides dynamic card-route rewrites, real 404 handling through the generated static output, and production security headers.
 
 ## Cloudflare or Edge Firewall
 
@@ -48,8 +48,8 @@ GitHub Pages remains the public demo but cannot accept repository-defined WAF ru
 ## Docker / Private Hosting
 
 ```bash
-docker build -t cardforge:0.3.1 .
-docker run --rm -p 8080:80 cardforge:0.3.1
+docker build -t cardforge:0.3.2 .
+docker run --rm -p 8080:80 cardforge:0.3.2
 ```
 
 Terminate TLS at a managed load balancer or reverse proxy. The bundled nginx server handles SPA fallback, immutable asset caching, and security headers.
@@ -60,7 +60,7 @@ Terminate TLS at a managed load balancer or reverse proxy. The bundled nginx ser
 - Redirect the alternate hostname (`www` or apex) to one canonical hostname.
 - Keep HTTPS enforcement enabled.
 - Verify `/`, `/new`, `/templates`, `/organizations`, `/trust`, and a generated `/c/...` link.
-- Update `public/sitemap.xml`, `public/robots.txt`, `public/.well-known/security.txt`, and Open Graph URLs when the canonical domain changes.
+- Set `VITE_SITE_ORIGIN` to the final canonical base URL; the production build updates canonical/Open Graph URLs, `sitemap.xml`, `robots.txt`, `llms.txt`, and `security.txt`.
 - Do not add a `CNAME` file until the actual domain is known.
 
 ## Release Verification
