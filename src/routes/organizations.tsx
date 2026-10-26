@@ -40,7 +40,7 @@ export function OrganizationsRoute() {
 
       <section className="notice-band">
         <ShieldCheck size={24} />
-        <div><h2>What the current edition is, and is not</h2><p>It is a complete local design and batch-export tool. It does not yet provide centralized accounts, SSO, approval queues, hosted short-link revocation, audit logs, or cloud roster storage. Those require a secure backend and organization agreement.</p></div>
+        <div><h2>What the current edition is, and is not</h2><p>It is a complete local design and batch-export tool, and CardForge Cloud adds personal accounts, cross-device sync, and hosted cards you can update or switch off. It does not yet provide SSO, shared team workspaces, approval queues, audit logs, or cloud roster storage. Those require an organization agreement.</p></div>
       </section>
 
       <section className="org-deploy">

@@ -15,6 +15,7 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
           if (id.includes('pdf-lib')) return 'pdf-export';
+          if (id.includes('@supabase')) return 'cloud-sdk';
           if (id.includes('qrcode')) return 'qr-code';
           if (id.includes('lucide-react')) return 'icons';
           if (id.includes('react') || id.includes('scheduler')) return 'react-vendor';

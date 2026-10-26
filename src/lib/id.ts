@@ -1,5 +1,14 @@
+function randomToken() {
+  // Ids also key cloud rows, so prefer a CSPRNG over Math.random.
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    const bytes = crypto.getRandomValues(new Uint8Array(8));
+    return Array.from(bytes, (byte) => byte.toString(36).padStart(2, '0')).join('').slice(0, 12);
+  }
+  return Math.random().toString(36).slice(2, 10);
+}
+
 export function createId(prefix = 'id') {
-  return `${prefix}_${Math.random().toString(36).slice(2, 10)}_${Date.now().toString(36)}`;
+  return `${prefix}_${randomToken()}_${Date.now().toString(36)}`;
 }
 
 export function slugify(value: string) {

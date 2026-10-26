@@ -108,7 +108,7 @@ test('digital cards keep private data out of the request query', async ({ contex
 });
 
 test('public routes expose distinct crawlable metadata and one primary heading', async ({ page }) => {
-  const routes = ['/', '/templates', '/organizations', '/trust', '/privacy', '/terms', '/accessibility', '/help'];
+  const routes = ['/', '/templates', '/organizations', '/pricing', '/trust', '/privacy', '/terms', '/accessibility', '/help'];
   const titles = new Set<string>();
 
   for (const route of routes) {
@@ -130,4 +130,35 @@ test('unknown routes render a real noindex 404 screen', async ({ page }) => {
   await expect(page).toHaveTitle('Page not found | CardForge');
   await expect(page.getByRole('heading', { name: 'This page is not in the deck.' })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
+});
+
+test('opening the editor without editing does not add a card to the library', async ({ page }) => {
+  await page.goto('/new');
+  await expect(page.getByLabel('Design name')).toBeVisible();
+  await page.waitForTimeout(1200);
+  await page.goto('/library');
+  await expect(page.getByText('No saved designs yet.')).toBeVisible();
+
+  await page.goto('/new');
+  await page.getByLabel('Design name').fill('Saved Person card');
+  await page.waitForTimeout(1200);
+  await page.goto('/library');
+  await expect(page.getByText('Saved Person card')).toBeVisible();
+});
+
+test('missing designs show a recoverable not-found state', async ({ page }) => {
+  await page.goto('/design/design_does_not_exist');
+  await expect(page.getByRole('heading', { name: 'We couldn’t find that card.' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open My cards' })).toBeVisible();
+});
+
+test('pricing compares plans and local-only builds explain cloud availability', async ({ page }) => {
+  await page.goto('/pricing');
+  await expect(page.getByRole('heading', { name: 'Simple plans for every introduction.' })).toBeVisible();
+  for (const name of ['Free', 'Pro', 'Business']) {
+    await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('table')).toContainText('Custom link');
+  await page.goto('/login');
+  await expect(page.getByRole('heading', { name: 'Accounts aren’t enabled here' })).toBeVisible();
 });

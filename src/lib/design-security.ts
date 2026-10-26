@@ -27,6 +27,8 @@ export const DEFAULT_SHARE_PREFERENCES: SharePreferences = {
 
 const SAFE_IMAGE = /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i;
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
+/** Mirrors the published_cards.slug check constraint in the cloud schema. */
+export const HOSTED_SLUG = /^[a-z0-9][a-z0-9-]{1,46}[a-z0-9]$/;
 const CONTACT_KEYS: Record<ContactItem['kind'], keyof SharePreferences> = {
   email: 'includeEmail',
   phone: 'includePhone',
@@ -142,7 +144,8 @@ export function normalizeDesign(input: unknown): Design | null {
       slug: candidate.meta.slug,
       createdAt: stringValue(candidate.meta.createdAt, 80, new Date(0).toISOString()),
       updatedAt: stringValue(candidate.meta.updatedAt, 80, new Date(0).toISOString()),
-      templateId: stringValue(candidate.meta.templateId, 160)
+      templateId: stringValue(candidate.meta.templateId, 160),
+      publishedSlug: typeof candidate.meta.publishedSlug === 'string' && HOSTED_SLUG.test(candidate.meta.publishedSlug) ? candidate.meta.publishedSlug : undefined
     },
     identity: normalizeIdentity(candidate.identity),
     contacts: normalizeContacts(candidate.contacts),

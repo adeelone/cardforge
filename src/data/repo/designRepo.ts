@@ -20,9 +20,16 @@ async function migrateLegacyDesigns() {
   );
 }
 
-export async function saveDesign(design: Design) {
+/**
+ * Persist a design. `touch` stamps the edit time (the default for library
+ * actions); pass `touch: false` when the timestamp is already authoritative —
+ * the editor stamps every change itself, and cloud pulls must keep the cloud
+ * edit time so sync can compare copies.
+ */
+export async function saveDesign(design: Design, options: { touch?: boolean } = {}) {
   await migrateLegacyDesigns();
-  await set(`${prefix}${design.meta.id}`, { ...design, meta: { ...design.meta, updatedAt: new Date().toISOString() } }, designStore);
+  const updatedAt = options.touch === false ? design.meta.updatedAt : new Date().toISOString();
+  await set(`${prefix}${design.meta.id}`, { ...design, meta: { ...design.meta, updatedAt } }, designStore);
 }
 
 export async function getDesign(id: string) {

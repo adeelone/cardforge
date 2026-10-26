@@ -24,6 +24,8 @@ interface EditorStore {
   selectedIds: string[];
   activeSide: CardSide;
   transformStart: Design | null;
+  /** True once the user has changed the loaded design; autosave waits for it. */
+  dirty: boolean;
   setDesign: (design: Design) => void;
   setActiveSide: (side: CardSide) => void;
   beginTransform: () => void;
@@ -35,6 +37,8 @@ interface EditorStore {
   updateQrStyle: (patch: Partial<Design['qrStyle']>) => void;
   updateShare: (patch: Partial<Design['share']>) => void;
   renameDesign: (name: string) => void;
+  /** Record the hosted-card slug. Not an edit, so it stays out of undo history. */
+  setPublishedSlug: (slug: string | undefined) => void;
   updateContact: (id: string, patch: Partial<ContactItem>) => void;
   addContact: () => void;
   removeContact: (id: string) => void;
@@ -67,8 +71,8 @@ function touch(design: Design): Design {
   };
 }
 
-function commit(state: EditorStore, next: Design): Pick<EditorStore, 'history'> {
-  return { history: pushHistory(state.history, touch(next)) };
+function commit(state: EditorStore, next: Design): Pick<EditorStore, 'history' | 'dirty'> {
+  return { history: pushHistory(state.history, touch(next)), dirty: true };
 }
 
 function nextZ(elements: DesignElement[]) {
@@ -145,7 +149,8 @@ export const useEditorStore = create<EditorStore>((set) => ({
   selectedIds: [],
   activeSide: 'front',
   transformStart: null,
-  setDesign: (design) => set({ history: { past: [], present: design, future: [] }, selectedIds: [] }),
+  dirty: false,
+  setDesign: (design) => set({ history: { past: [], present: design, future: [] }, selectedIds: [], dirty: false, transformStart: null }),
   setActiveSide: (side) => set({ activeSide: side }),
   beginTransform: () => set((state) => ({ transformStart: state.transformStart ?? state.history.present })),
   liveTransform: (updates) =>
@@ -172,9 +177,18 @@ export const useEditorStore = create<EditorStore>((set) => ({
       if (start === state.history.present) return { transformStart: null };
       return {
         history: { past: [...state.history.past.slice(-59), start], present: touch(state.history.present), future: [] },
-        transformStart: null
+        transformStart: null,
+        dirty: true
       };
     }),
+  setPublishedSlug: (slug) =>
+    set((state) => ({
+      history: {
+        ...state.history,
+        present: { ...state.history.present, meta: { ...state.history.present.meta, publishedSlug: slug, updatedAt: new Date().toISOString() } }
+      },
+      dirty: true
+    })),
   renameDesign: (name) =>
     set((state) => commit(state, { ...state.history.present, meta: { ...state.history.present.meta, name } })),
   updateIdentity: (patch) =>
@@ -357,6 +371,6 @@ export const useEditorStore = create<EditorStore>((set) => ({
         contacts: bounded[0].contacts
       });
     }),
-  undo: () => set((state) => ({ history: undo(state.history) })),
-  redo: () => set((state) => ({ history: redo(state.history) }))
+  undo: () => set((state) => ({ history: undo(state.history), dirty: true })),
+  redo: () => set((state) => ({ history: redo(state.history), dirty: true }))
 }));

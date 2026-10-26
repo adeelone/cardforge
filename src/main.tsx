@@ -8,8 +8,10 @@ import { UpdateBanner } from './app/update-banner';
 import { applyTheme } from './app/theme';
 import { APP_RELEASE } from './app/release';
 import { useUpdateStore } from './lib/update-available';
+import { bootSession } from './lib/cloud/session';
 import './styles/fonts.css';
 import './styles/base.css';
+import './styles/cloud.css';
 
 // Apply the saved theme before first paint to avoid a flash.
 applyTheme();
@@ -20,6 +22,8 @@ if (redirect) {
   const next = redirect.startsWith(base) ? redirect.slice(base.length) || '/' : redirect;
   window.history.replaceState(null, '', `${base}${next}`);
 }
+
+bootSession();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

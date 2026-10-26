@@ -39,3 +39,8 @@ export function buildShareUrl(design: Design, opts?: { stripAssets?: boolean }):
   const payloadDesign = sanitizeSharedDesign(design, opts?.stripAssets);
   return `${shareBase()}/c/${design.meta.slug}#d=${encodeURIComponent(encodeSharePayload(payloadDesign))}`;
 }
+
+/** Short URL of a card hosted by CardForge Cloud. */
+export function hostedCardUrl(slug: string) {
+  return `${shareBase()}/c/${encodeURIComponent(slug)}`;
+}

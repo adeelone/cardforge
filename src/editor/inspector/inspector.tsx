@@ -40,6 +40,9 @@ import { saveDesign } from '../../data/repo/designRepo';
 import { toast } from '../../lib/toast';
 import type { Alignment, DesignElement, ShapeKind } from '../../types/design';
 import { rosterTemplateCsv, variantsFromCsv, variantsToCsv } from '../../lib/roster';
+import { PublishPanel } from './publish-panel';
+import { useSession } from '../../lib/cloud/session';
+import { syncDesign } from '../../lib/cloud/sync';
 
 const FONT_GROUPS = ['Sans', 'Serif', 'Mono', 'Display'] as const;
 
@@ -86,6 +89,7 @@ export function Inspector() {
   const swapSides = useEditorStore((state) => state.swapSides);
   const undo = useEditorStore((state) => state.undo);
   const redo = useEditorStore((state) => state.redo);
+  const signedIn = useSession((state) => state.status === 'signed-in');
   const fileRef = useRef<HTMLInputElement | null>(null);
   const rosterRef = useRef<HTMLInputElement | null>(null);
 
@@ -164,8 +168,13 @@ export function Inspector() {
 
   async function save() {
     try {
-      await saveDesign(design);
-      toast('Design saved locally');
+      await saveDesign(design, { touch: false });
+      if (signedIn) {
+        const state = await syncDesign(design, { explicit: true });
+        toast(state === 'synced' ? 'Saved and synced to your account' : 'Saved on this device');
+      } else {
+        toast('Design saved locally');
+      }
     } catch (error) {
       console.error(error);
       toast('Could not save — check available storage', 'error');
@@ -387,6 +396,7 @@ export function Inspector() {
         }}><option value="never">Never</option><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option>{design.share.expiresAt ? <option value="dated">{new Date(design.share.expiresAt).toLocaleDateString()}</option> : null}</select></label>
         <label className="check-label"><input type="checkbox" checked={design.share.allowVcard} onChange={(event) => updateShare({ allowVcard: event.target.checked })} /> Let recipients save a vCard</label>
         <button type="button" className="primary-button full" onClick={() => void copyShareUrl()}><LinkIcon size={15} />Copy digital card link</button>
+        <PublishPanel />
       </details>
 
       <details>

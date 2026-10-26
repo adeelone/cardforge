@@ -1,6 +1,6 @@
 import type { Design, DesignElement } from '../types/design';
 import { createVCard } from './vcard';
-import { buildShareUrl, shareBase } from './share-link';
+import { buildShareUrl, hostedCardUrl, shareBase } from './share-link';
 import { safeExternalHref } from '../lib/design-security';
 
 export function qrExternalDestination(element: DesignElement): string | undefined {
@@ -27,7 +27,9 @@ export function qrCandidates(element: DesignElement, design: Design): string[] {
     const destination = qrExternalDestination(element);
     if (destination) return [destination];
   }
-  return [buildShareUrl(design), buildShareUrl(design, { stripAssets: true }), createVCard(design), shortLink];
+  // A hosted card is a short, revocable URL — the best possible QR payload.
+  const hosted = design.meta.publishedSlug ? [hostedCardUrl(design.meta.publishedSlug)] : [];
+  return [...hosted, buildShareUrl(design), buildShareUrl(design, { stripAssets: true }), createVCard(design), shortLink];
 }
 
 /** Try each candidate until one renders within QR capacity; returns null if all fail. */

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Copy, Download, FilePlus2, Search, Trash2, Upload } from 'lucide-react';
+import { Cloud, CloudOff, CloudUpload, Copy, Download, FilePlus2, Loader2, Search, Trash2, Upload } from 'lucide-react';
 import type { Design } from '../types/design';
 import { deleteDesign, listDesigns, saveDesign } from '../data/repo/designRepo';
 import { createId, slugify } from '../lib/id';
@@ -8,10 +8,30 @@ import { downloadText } from '../lib/download';
 import { CardSvg } from '../editor/canvas/card-svg';
 import { toast } from '../lib/toast';
 import { MAX_IMPORT_BYTES, normalizeDesign } from '../lib/design-security';
+import { cloudEnabled } from '../lib/cloud/client';
+import { useSession } from '../lib/cloud/session';
+import { deleteCloudDesign } from '../lib/cloud/api';
+import { reconcile, syncDesign, useSyncStore, type SyncState } from '../lib/cloud/sync';
+import { cloudErrorMessage } from '../lib/plans';
+
+const SYNC_LABEL: Record<SyncState, string> = {
+  synced: 'Synced',
+  syncing: 'Syncing…',
+  'local-only': 'This device',
+  error: 'Sync failed'
+};
+
+function SyncBadge({ state }: { state: SyncState }) {
+  const Icon = state === 'synced' ? Cloud : state === 'syncing' ? Loader2 : CloudOff;
+  return <span className={`sync-badge sync-${state}`}><Icon size={12} aria-hidden="true" />{SYNC_LABEL[state]}</span>;
+}
 
 export function LibraryRoute() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [query, setQuery] = useState('');
+  const status = useSession((state) => state.status);
+  const syncStates = useSyncStore((state) => state.states);
+  const signedIn = status === 'signed-in';
 
   async function refresh() {
     setDesigns(await listDesigns());
@@ -21,9 +41,24 @@ export function LibraryRoute() {
     listDesigns().then(setDesigns).catch(() => setDesigns([]));
   }, []);
 
+  useEffect(() => {
+    if (!signedIn) return;
+    reconcile()
+      .then(setDesigns)
+      .catch((error) => {
+        console.error(error);
+        toast(cloudErrorMessage(error), 'error');
+      });
+  }, [signedIn]);
+
+  async function upload(design: Design) {
+    const state = await syncDesign(design, { explicit: true });
+    if (state === 'synced') toast('Card synced to your account');
+  }
+
   async function duplicate(design: Design) {
     try {
-      await saveDesign({ ...design, meta: { ...design.meta, id: createId('design'), name: `${design.meta.name} copy` } });
+      await saveDesign({ ...design, meta: { ...design.meta, id: createId('design'), name: `${design.meta.name} copy`, publishedSlug: undefined } });
       await refresh();
       toast('Design duplicated');
     } catch (error) {
@@ -33,8 +68,10 @@ export function LibraryRoute() {
   }
 
   async function remove(id: string) {
-    if (!window.confirm('Delete this design permanently?')) return;
+    const inCloud = signedIn && syncStates[id] === 'synced';
+    if (!window.confirm(inCloud ? 'Delete this design from this device and your account (including its hosted card)?' : 'Delete this design permanently?')) return;
     try {
+      if (inCloud) await deleteCloudDesign(id);
       await deleteDesign(id);
       await refresh();
       toast('Design deleted');
@@ -58,6 +95,7 @@ export function LibraryRoute() {
           id: createId('design'),
           name: parsed.meta?.name ? `${parsed.meta.name} import` : 'Imported business card',
           slug: slugify(parsed.meta?.name ?? 'imported business card'),
+          publishedSlug: undefined,
           createdAt: parsed.meta?.createdAt ?? now,
           updatedAt: now
         }
@@ -79,7 +117,12 @@ export function LibraryRoute() {
       <header className="page-header library-header">
         <div>
           <h1>My Designs</h1>
-          <p>Saved locally in this browser. Export JSON to back up or move between devices.</p>
+          <p>
+            {signedIn
+              ? 'Saved in this browser and synced to your CardForge account.'
+              : 'Saved locally in this browser. Export JSON to back up or move between devices.'}
+            {cloudEnabled && status === 'signed-out' ? <> <Link to="/login?next=/library" className="text-link">Sign in to sync across devices</Link></> : null}
+          </p>
         </div>
         <div className="library-header-actions">
           <label className="ghost-button import-control">
@@ -114,9 +157,13 @@ export function LibraryRoute() {
                 <strong>{design.meta.name}</strong>
                 <span>{design.identity.title}{design.identity.company ? ` at ${design.identity.company}` : ''}</span>
                 <span>Edited {new Date(design.meta.updatedAt).toLocaleString()}</span>
+                {signedIn ? <SyncBadge state={syncStates[design.meta.id] ?? 'local-only'} /> : null}
               </div>
               <div className="library-actions">
                 <Link to={`/design/${design.meta.id}`} className="ghost-button">Open</Link>
+                {signedIn && syncStates[design.meta.id] !== 'synced' ? (
+                  <button type="button" className="icon-button" onClick={() => void upload(design)} aria-label="Sync to account" title="Sync to account"><CloudUpload size={15} /></button>
+                ) : null}
                 <button type="button" className="icon-button" onClick={() => duplicate(design)} aria-label="Duplicate"><Copy size={15} /></button>
                 <button type="button" className="icon-button" onClick={() => downloadText(JSON.stringify(design, null, 2), `${design.meta.slug}.cardforge.json`, 'application/json')} aria-label="Export JSON"><Download size={15} /></button>
                 <button type="button" className="icon-button danger" onClick={() => void remove(design.meta.id)} aria-label="Delete"><Trash2 size={15} /></button>

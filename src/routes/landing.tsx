@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Download, HeartHandshake, Layers, Palette, QrCode, ShieldCheck } from 'lucide-react';
+import { ArrowRight, BarChart3, Cloud, Download, HeartHandshake, Layers, Link2, Palette, QrCode, ShieldCheck } from 'lucide-react';
 import { templates, createStarterDesign } from '../editor/templates/templates';
 import { CardSvg } from '../editor/canvas/card-svg';
 import { APP_RELEASE } from '../app/release';
@@ -31,7 +31,7 @@ export function LandingRoute() {
             <Link to="/new" className="primary-button large">Start designing <ArrowRight size={18} /></Link>
             <Link to="/templates" className="ghost-button large">Browse templates</Link>
           </div>
-          <p className="hero-note"><ShieldCheck size={15} /> No sign-up, no tracking, and your work stays on this device.</p>
+          <p className="hero-note"><ShieldCheck size={15} /> No sign-up needed. Your work stays on this device unless you choose to sync it.</p>
         </div>
         <div className="hero-preview" aria-hidden="true">
           <div className="hero-card front"><CardSvg design={heroDesign} side="front" /></div>
@@ -73,6 +73,23 @@ export function LandingRoute() {
         </div>
       </section>
 
+      <section className="cloud-band" aria-labelledby="cloud-heading">
+        <div className="cloud-band-copy">
+          <span className="tag">CardForge Cloud</span>
+          <h2 id="cloud-heading">Your card, live on the web — on your terms.</h2>
+          <p>Publish a hosted card with a short link, update it after it’s printed, or switch it off in one tap. See how many people opened it without tracking any of them.</p>
+          <div className="hero-actions">
+            <Link to="/pricing" className="primary-button">See plans <ArrowRight size={16} /></Link>
+            <Link to="/login?mode=sign-up" className="ghost-button">Create a free account</Link>
+          </div>
+        </div>
+        <ul className="cloud-points">
+          <li><Link2 size={18} /><span><strong>Short, revocable links</strong>Printed QR codes keep working when your details change.</span></li>
+          <li><Cloud size={18} /><span><strong>Sync across devices</strong>Start on a laptop, finish on your phone.</span></li>
+          <li><BarChart3 size={18} /><span><strong>Private analytics</strong>Daily view counts — no cookies, no IPs, no profiles.</span></li>
+        </ul>
+      </section>
+
       <section className="audience-band">
         <div><h2>One design, a whole cohort.</h2><p>Import a consented CSV roster, review each person's card, then export one print-ready PDF for the group. The roster never leaves the browser.</p></div>
         <Link to="/organizations" className="ghost-button">CardForge for schools and teams <ArrowRight size={16} /></Link>
@@ -87,6 +104,7 @@ export function LandingRoute() {
         <span>CardForge {APP_RELEASE} — local-first business card studio</span>
         <div className="footer-links">
           <Link to="/templates">Templates</Link>
+          <Link to="/pricing">Pricing</Link>
           <Link to="/library">Library</Link>
           <Link to="/settings">Settings</Link>
           <Link to="/trust">Trust</Link>

@@ -110,6 +110,8 @@ export interface DesignMeta {
   createdAt: string;
   updatedAt: string;
   templateId: string;
+  /** Slug of this design's hosted CardForge Cloud card, once published. */
+  publishedSlug?: string;
 }
 
 export interface QrStyle {

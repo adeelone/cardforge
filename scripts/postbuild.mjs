@@ -15,6 +15,9 @@ const pages = [
   ['privacy', 'Privacy policy | CardForge', 'Read how CardForge stores designs locally, avoids tracking, handles sharing links, and protects your choices.', 'CardForge privacy policy', true],
   ['terms', 'Terms of use | CardForge', 'Read the terms for using the open-source CardForge business card studio and its hosted application.', 'CardForge terms of use', true],
   ['accessibility', 'Accessibility | CardForge', 'Review CardForge accessibility goals, editor support, known limitations, and feedback process.', 'CardForge accessibility', true],
+  ['pricing', 'Pricing | CardForge', 'Design and print business cards free forever. Upgrade for synced cards, short revocable links, custom URLs, and privacy-respecting view analytics.', 'CardForge pricing', true],
+  ['login', 'Sign in | CardForge', 'Sign in to CardForge to sync business cards across devices and publish hosted digital cards.', 'Sign in to CardForge', false],
+  ['account', 'Your account | CardForge', 'Manage your CardForge plan, hosted cards, analytics, and billing history.', 'Your CardForge account', false],
   ['help', 'Help and browser support | CardForge', 'Get help with saved cards, exports, printing, QR scanning, browser support, and CardForge updates.', 'CardForge help', true]
 ];
 
