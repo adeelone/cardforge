@@ -1,6 +1,6 @@
 {
   "name": "cardforge",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "CardForge is a local-first React studio for designing and exporting print-ready and digital business cards.",

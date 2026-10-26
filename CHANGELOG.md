@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.4.0 - CardForge Cloud
+
+### Added
+- Optional accounts (password, magic link, password reset) backed by Supabase, with self-service account deletion.
+- Cross-device sync of designs with newest-edit-wins reconciliation; local storage remains the first write and the safety net.
+- Hosted digital cards at short `/c/<slug>` links that can be updated after printing or switched off; QR codes encode the short link once published.
+- Privacy-respecting view analytics: daily counts only, no visitor data.
+- Free, Pro, and Business plans with database-enforced quotas, custom slugs, and badge removal; pricing, demo checkout, cancel/resume, and billing history.
+- `CLOUD.md` operator guide, including the path from demo billing to Stripe.
+
+### Fixed
+- Opening the editor or a share link no longer saves an untouched card to My cards.
+- Designs opened from someone else's share link get a fresh id instead of the sender's.
+- `/design/:id` for a missing design shows a recoverable not-found page instead of editing the previously open card.
+- Ids use `crypto.getRandomValues`.
+- Patched high-severity dependency advisories (vite 8.3.5, vitest 4.1.12) that were failing CI's audit gate.
+
+### Performance
+- The Supabase SDK is lazy-loaded, and account, billing, and policy pages are code-split, keeping the main bundle near its previous size.
+
 ## Unreleased
 
 - Keep canonical, Open Graph, sitemap, crawler, LLM, and security-contact URLs aligned when building for a custom domain.

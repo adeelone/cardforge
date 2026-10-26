@@ -38,11 +38,15 @@ Imported JSON and compressed share payloads pass through `normalizeDesign` befor
 
 ## Organization Workflow
 
-Roster CSV parsing runs locally and is capped at 250 people. It creates `DesignVariant` records without uploading the source file. The static edition deliberately has no central account, approval, or organization database.
+Roster CSV parsing runs locally and is capped at 250 people. It creates `DesignVariant` records without uploading the source file. Personal accounts exist through CardForge Cloud; there is still no organization workspace, approval queue, or cloud roster storage.
 
 ## Worker Boundary
 
 Palette extraction, raster work, and optional background removal have worker entrypoints. The default build keeps background removal disabled because the model payload is large.
+
+## CardForge Cloud
+
+Optional accounts, sync, hosted cards, analytics, and plans run on Supabase. The browser never decides entitlements: quotas, custom-slug rights, badge removal, analytics access, and billing state live in `SECURITY DEFINER` Postgres functions and triggers, and every table uses row-level security. IndexedDB remains the first write; cloud sync is layered on top with newest-edit-wins reconciliation. The SDK is lazy-loaded so local-only visitors never download it. See [CLOUD.md](CLOUD.md).
 
 ## PWA
 

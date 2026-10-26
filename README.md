@@ -2,9 +2,11 @@
 
 CardForge is a local-first React studio for designing, previewing, and exporting **print-ready and digital business cards** — from buttoned-up professional layouts to bold gradient/neon/oversized-type cards.
 
-It runs anonymous-first in the browser, saves designs locally, and exports PDF (with bleed + crop marks), PNG, SVG, vCard, QR, and `.cardforge.json` files without requiring an account.
+It runs anonymous-first in the browser, saves designs locally, and exports PDF (with bleed + crop marks), PNG, SVG, vCard, QR, and `.cardforge.json` files without requiring an account. Optional **CardForge Cloud** adds accounts, cross-device sync, hosted cards with short revocable links, private view analytics, and Free/Pro/Business plans — see [CLOUD.md](CLOUD.md).
 
 ## Highlights
+
+- **CardForge Cloud (optional)** — sign in to sync cards, publish a hosted card at `/c/your-name`, update or switch it off after printing, and see daily views. Plan limits are enforced in Postgres with row-level security.
 
 - **Freeform editor** — add, delete, duplicate, drag, resize, rotate, layer, align, and lock text, shapes, images, and QR codes. Whole drags are a single undo step.
 - **Real typography** — 10 self-hosted typefaces (via `@fontsource`) with curated heading/body pairings, so every template renders in its true typeface, online or offline.
@@ -49,11 +51,12 @@ npm run build
 - `pdf-lib` for vector PDF pages with bleed, trim box, and crop marks.
 - `@fontsource` self-hosted fonts (no CDN, CSP-safe, offline).
 - IndexedDB through `idb-keyval` for local design storage.
+- Optional Supabase (Postgres, Auth, RLS) for CardForge Cloud; SQL lives in `supabase/migrations/`.
 - `qrcode`, `lz-string`, and a hand-rolled vCard 4.0 writer for sharing.
 
 ## Environment
 
-CardForge 0.3.2 requires no environment variables. `VITE_SITE_ORIGIN` is an optional public build-time override for canonical URLs and generated discovery files when deploying to a custom domain. Do not put secrets in `VITE_*` variables because Vite embeds those values in public browser code. `.env.example` documents the exact behavior.
+CardForge requires no environment variables. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (both public) to enable CardForge Cloud; Vercel builds of this repository default to the hosted project. `VITE_SITE_ORIGIN` is an optional public build-time override for canonical URLs and generated discovery files when deploying to a custom domain. Do not put secrets in `VITE_*` variables because Vite embeds those values in public browser code. `.env.example` documents the exact behavior.
 
 ## Security model
 
@@ -104,6 +107,7 @@ npm run build
 ## Known boundaries
 
 - Embed/subset the self-hosted fonts into PDF export (PDF currently uses standard Helvetica; the canvas, PNG, and SVG use the true typefaces).
-- Add optional hosted short links so image-heavy digital cards aren't limited by URL length.
+- Replace the demo checkout with Stripe (steps in [CLOUD.md](CLOUD.md)).
+- Shared team workspaces, SSO, and brand locking.
 - Add NFC writer companion and wallet pass export.
 - True CMYK conversion remains an external print-production step.

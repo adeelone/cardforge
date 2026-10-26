@@ -1,6 +1,6 @@
 # Professional Deployment
 
-CardForge is a static Vite application. It does not need a runtime database, API key, or server process for its current local-first feature set.
+CardForge is a static Vite application. The local-first feature set needs no database or server. CardForge Cloud (accounts, sync, hosted cards, plans) adds a Supabase project; follow [CLOUD.md](CLOUD.md) for schema, auth email, and redirect-URL setup.
 
 ## Recommended Production Shape
 
@@ -20,7 +20,7 @@ Recommended topology:
 2. Confirm Framework Preset: `Vite`.
 3. Confirm Build Command: `npm run build`.
 4. Confirm Output Directory: `dist`.
-5. Leave environment variables empty for the GitHub Pages canonical, or set public `VITE_SITE_ORIGIN` to the final custom-domain base URL.
+5. Vercel builds automatically use the hosted CardForge Cloud project and the production domain as the canonical origin (`vite.config.ts`). Override with `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, or `VITE_SITE_ORIGIN` in Project Settings if needed.
 6. Add the production domain in Project Settings > Domains.
 7. Create the DNS records Vercel displays at the domain registrar.
 8. Enable deployment protection for previews if rosters or realistic contact data will be used in testing.
@@ -48,8 +48,8 @@ GitHub Pages remains the public demo but cannot accept repository-defined WAF ru
 ## Docker / Private Hosting
 
 ```bash
-docker build -t cardforge:0.3.2 .
-docker run --rm -p 8080:80 cardforge:0.3.2
+docker build -t cardforge:0.4.0 .
+docker run --rm -p 8080:80 cardforge:0.4.0
 ```
 
 Terminate TLS at a managed load balancer or reverse proxy. The bundled nginx server handles SPA fallback, immutable asset caching, and security headers.
@@ -88,7 +88,7 @@ After deployment:
 
 ## Monitoring and Rollback
 
-The current app intentionally has no analytics or hosted application backend. Use host-level uptime and deployment monitoring without adding session replay or personal-data analytics.
+The app has no third-party analytics. Use host-level uptime and deployment monitoring, and Supabase's logs and Security Advisor for the cloud layer, without adding session replay or personal-data analytics.
 
 - Keep the previous successful deployment available for instant rollback.
 - Treat a failed CI, E2E, or dependency review as a release blocker.
@@ -97,4 +97,4 @@ The current app intentionally has no analytics or hosted application backend. Us
 
 ## Enterprise Boundary
 
-Centralized accounts, SSO, role-based access, organization-wide brand locking, approval workflows, revocable hosted links, audit logs, and cloud roster storage require a backend, authentication, data-processing terms, retention policy, and operational monitoring. They are not implied by the static edition.
+CardForge Cloud provides personal accounts, sync, and revocable hosted links. SSO, role-based team access, organization-wide brand locking, approval workflows, audit logs, and cloud roster storage still require additional backend work, data-processing terms, a retention policy, and operational monitoring.

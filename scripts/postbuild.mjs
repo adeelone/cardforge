@@ -2,7 +2,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const dist = new URL('../dist/', import.meta.url);
 const defaultSiteOrigin = 'https://adeelone.github.io/cardforge';
-const siteOrigin = (process.env.VITE_SITE_ORIGIN || defaultSiteOrigin).replace(/\/$/, '');
+// Mirrors vite.config.ts: Vercel builds default to the production domain.
+const vercelOrigin = process.env.VERCEL === '1' && process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '';
+const siteOrigin = (process.env.VITE_SITE_ORIGIN || vercelOrigin || defaultSiteOrigin).replace(/\/$/, '');
 
 const pages = [
   ['new', 'Business card editor | CardForge', 'Create a private, print-ready business card with freeform editing, real typography, customizable QR codes, and professional exports.', 'Business card editor', false],
