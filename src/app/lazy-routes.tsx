@@ -13,3 +13,5 @@ export const PricingRoute = lazy(() => import('../routes/pricing').then((module)
 export const LoginRoute = lazy(() => import('../routes/login').then((module) => ({ default: module.LoginRoute })));
 export const AccountRoute = lazy(() => import('../routes/account').then((module) => ({ default: module.AccountRoute })));
 export const CheckoutRoute = lazy(() => import('../routes/checkout').then((module) => ({ default: module.CheckoutRoute })));
+export const BlogIndexRoute = lazy(() => import('../routes/blog').then((module) => ({ default: module.BlogIndexRoute })));
+export const BlogPostRoute = lazy(() => import('../routes/blog').then((module) => ({ default: module.BlogPostRoute })));

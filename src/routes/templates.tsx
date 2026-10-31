@@ -19,8 +19,8 @@ export function TemplatesRoute() {
   return (
     <main className="page">
       <header className="page-header">
-        <h1>Templates</h1>
-        <p>Every layout keeps stable element roles, so your name and contacts survive any switch. Pick one and make it yours.</p>
+        <h1>Free business card templates</h1>
+        <p>{templates.length} print-ready layouts for consultants, creatives, students, shops, and teams. Every template keeps your details when you switch, exports a PDF with bleed, and includes a scannable QR code.</p>
       </header>
 
       <div className="template-tools">

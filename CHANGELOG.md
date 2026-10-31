@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 - Discoverability
+
+### Added
+- Build-time prerendering of every public page and guide (`src/prerender.tsx`), so search engines and AI assistants read real content without running JavaScript; the app takes over seamlessly on load.
+- A blog at `/blog` with an RSS feed and three launch guides; posts are Markdown files in `content/blog/`, and posts dated in the future stay hidden until their date.
+- Generated `sitemap.xml` (with post `lastmod`), `robots.txt` that explicitly welcomes AI crawlers, `llms.txt`, and `llms-full.txt`.
+- Per-page JSON-LD (Organization, WebSite, SoftwareApplication with plan offers, FAQPage, ItemList, BlogPosting, BreadcrumbList) and fuller Open Graph and Twitter tags.
+- Search Console and Bing verification through `seo.config.json` or environment variables.
+- `GROWTH.md`: Search Console steps, keyword map, directory submission kit, and a 12-week content calendar.
+
+### Changed
+- Keyword-led titles and descriptions from one shared source (`src/app/page-meta.ts`), used by both the app and the build.
+- Dynamic routes (`/c/*`, `/design/*`, `/checkout/*`) are served from a neutral `app.html` with `noindex`, so hosted cards never flash home-page content and stay out of search results.
+- `vite preview` now mirrors production routing, so end-to-end tests cover the real served HTML.
+
 ## 0.4.0 - CardForge Cloud
 
 ### Added

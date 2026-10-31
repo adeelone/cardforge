@@ -48,8 +48,8 @@ GitHub Pages remains the public demo but cannot accept repository-defined WAF ru
 ## Docker / Private Hosting
 
 ```bash
-docker build -t cardforge:0.4.0 .
-docker run --rm -p 8080:80 cardforge:0.4.0
+docker build -t cardforge:0.5.0 .
+docker run --rm -p 8080:80 cardforge:0.5.0
 ```
 
 Terminate TLS at a managed load balancer or reverse proxy. The bundled nginx server handles SPA fallback, immutable asset caching, and security headers.

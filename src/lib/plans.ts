@@ -66,6 +66,14 @@ export const PLANS: Record<PlanTier, PlanInfo> = {
 
 export const PLAN_ORDER: PlanTier[] = ['free', 'pro', 'business'];
 
+/** Shown on /pricing and emitted as FAQPage structured data at build time. */
+export const PRICING_FAQ: readonly (readonly [question: string, answer: string])[] = [
+  ['Do I need an account?', 'No. Designing, printing, exporting, and fragment share links all work without one. An account adds sync, hosted short links, and analytics.'],
+  ['What happens if I downgrade?', 'Nothing is deleted. Cards over your new sync limit stay on your devices, and live cards keep working; you just can’t add more until you’re under the limit.'],
+  ['What do analytics collect?', 'Only a count of views per card per day. No IP addresses, cookies, device fingerprints, or referrers are stored.'],
+  ['Can I cancel any time?', 'Yes. Your plan stays active until the end of the billing period, then returns to Free.']
+];
+
 export function isPlanTier(value: unknown): value is PlanTier {
   return value === 'free' || value === 'pro' || value === 'business';
 }

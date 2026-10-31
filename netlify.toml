@@ -4,18 +4,33 @@
 
 [[redirects]]
   from = "/design/*"
-  to = "/index.html"
+  to = "/app.html"
   status = 200
 
 [[redirects]]
   from = "/checkout/*"
-  to = "/index.html"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/app.html"
   status = 200
 
 [[redirects]]
   from = "/c/*"
-  to = "/index.html"
+  to = "/app.html"
   status = 200
+
+[[headers]]
+  for = "/c/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/design/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
   for = "/*"

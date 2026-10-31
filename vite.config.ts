@@ -1,6 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 const pkg = JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')) as { version: string };
@@ -16,15 +18,40 @@ if (process.env.VERCEL === '1') {
   if (process.env.VERCEL_PROJECT_PRODUCTION_URL) process.env.VITE_SITE_ORIGIN ??= `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
 }
 
-export default defineConfig({
+/**
+ * Make `vite preview` route like the production hosts (vercel.json and
+ * friends): serve a prerendered <path>/index.html when one exists, the
+ * neutral app.html for dynamic app routes, and the SPA fallback otherwise.
+ * E2E tests run against preview, so this keeps them honest.
+ */
+function productionRouting(): Plugin {
+  const dynamic = /^\/(c|design|checkout|blog)\/[^/]+\/?$/;
+  return {
+    name: 'cardforge-production-routing',
+    configurePreviewServer(server) {
+      const outDir = resolve(server.config.root, server.config.build.outDir);
+      server.middlewares.use((req, _res, next) => {
+        const [pathname, query = ''] = (req.url ?? '/').split('?');
+        if (req.method !== 'GET' || pathname.includes('.') || pathname === '/') return next();
+        const page = `${pathname.replace(/\/$/, '')}/index.html`;
+        if (existsSync(`${outDir}${page}`)) req.url = page + (query ? `?${query}` : '');
+        else if (dynamic.test(pathname)) req.url = `/app.html${query ? `?${query}` : ''}`;
+        next();
+      });
+    }
+  };
+}
+
+export default defineConfig(({ isSsrBuild }) => ({
   base: process.env.GITHUB_PAGES === 'true' ? '/cardforge/' : '/',
-  plugins: [react()],
+  plugins: [react(), productionRouting()],
   build: {
     sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
+          // The prerender bundle is a single Node module; only split the browser build.
+          if (isSsrBuild || !id.includes('node_modules')) return undefined;
           if (id.includes('pdf-lib')) return 'pdf-export';
           if (id.includes('@supabase')) return 'cloud-sdk';
           if (id.includes('qrcode')) return 'qr-code';
@@ -37,6 +64,11 @@ export default defineConfig({
         }
       }
     }
+  },
+  // Bundle dependencies into the prerender module so Node never has to resolve
+  // CommonJS packages (lz-string, qrcode) through ESM interop.
+  ssr: {
+    noExternal: true
   },
   worker: {
     format: 'es'
@@ -54,4 +86,4 @@ export default defineConfig({
       include: ['src/exporters/**', 'src/editor/canvas/**', 'src/data/repo/**']
     }
   }
-});
+}));

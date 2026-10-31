@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { Outlet, NavLink, Link, useLocation } from 'react-router-dom';
-import { FolderOpen, Gem, LayoutTemplate, Moon, Pencil, Plus, Settings, Sun, UserRound, Users } from 'lucide-react';
+import { BookOpen, FolderOpen, Gem, LayoutTemplate, Moon, Pencil, Plus, Settings, Sun, UserRound, Users } from 'lucide-react';
 import { applyTheme, getThemePreference, setThemePreference, useSystemThemeSync } from './theme';
 import { Seo } from './seo';
 import { cloudEnabled } from '../lib/cloud/client';
@@ -12,6 +12,7 @@ const links = [
   { to: '/templates', label: 'Templates', icon: LayoutTemplate },
   { to: '/library', label: 'My cards', icon: FolderOpen },
   { to: '/organizations', label: 'For teams', icon: Users },
+  { to: '/blog', label: 'Guides', icon: BookOpen },
   { to: '/pricing', label: 'Pricing', icon: Gem }
 ];
 

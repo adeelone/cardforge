@@ -14,11 +14,15 @@ It runs anonymous-first in the browser, saves designs locally, and exports PDF (
 - **Digital cards** — share a link or QR that opens a tappable digital card and saves the recipient's contact. New links keep the filtered design in the URL fragment so ordinary hosting requests do not receive it.
 - **Private sharing controls** — choose exactly which contact fields, pronouns, tagline, and images enter a link; optionally expire the card and disable vCard downloads.
 - **Custom QR studio** — square, rounded, or dot modules; custom ink and paper; quiet-zone and correction controls; optional center initial; consistent preview and SVG export.
-- **16 templates** — professional, minimal, creative, personal, student, and small-business layouts with content-preserving switching.
+- **17 templates** — professional, minimal, creative, personal, student, and small-business layouts with content-preserving switching.
 - **Resilient QR** — QR content degrades gracefully (filtered link → link without image assets → vCard → short link) so a scannable code can still render.
 - **Trust and legal pages** — in-app security model, sharing guide, privacy notice, terms, accessibility statement, and help.
 - **Working dark mode** and mm/inch units, applied app-wide.
 - **Accessibility** — WCAG AA contrast check on card colors, focus-visible outlines, keyboard nudging/delete/duplicate/undo.
+
+## Discoverability
+
+Public pages and the guides in `content/blog/` are prerendered to static HTML at build time, together with the sitemap, robots.txt, RSS feed, and `llms.txt`. See [GROWTH.md](GROWTH.md) for Search Console setup, the keyword map, directory submissions, and the content calendar.
 
 ## Keyboard shortcuts (editor)
 

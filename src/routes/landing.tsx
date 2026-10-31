@@ -22,6 +22,7 @@ export function LandingRoute() {
     <main className="landing">
       <section className="hero">
         <div className="hero-copy">
+          <p className="hero-eyebrow">Free business card maker</p>
           <h1>A business card that sounds like you.</h1>
           <p className="lede">
             CardForge is a private little print studio in your browser. Start with a thoughtful template, shape every detail,
@@ -95,6 +96,16 @@ export function LandingRoute() {
         <Link to="/organizations" className="ghost-button">CardForge for schools and teams <ArrowRight size={16} /></Link>
       </section>
 
+      <section className="guides-band" aria-labelledby="guides-heading">
+        <h2 id="guides-heading">Guides for better cards</h2>
+        <ul>
+          <li><Link to="/blog/business-card-size-and-bleed">Business card size and bleed: the print-ready guide</Link></li>
+          <li><Link to="/blog/digital-business-card-qr-code">How to make a digital business card with a QR code</Link></li>
+          <li><Link to="/blog/what-to-put-on-a-business-card">What to put on a business card in 2026</Link></li>
+        </ul>
+        <Link to="/blog" className="text-link">All guides <ArrowRight size={15} /></Link>
+      </section>
+
       <section className="cta">
         <h2>Make the next introduction feel like yours.</h2>
         <Link to="/new" className="primary-button large">Open the editor <ArrowRight size={18} /></Link>
@@ -105,6 +116,7 @@ export function LandingRoute() {
         <div className="footer-links">
           <Link to="/templates">Templates</Link>
           <Link to="/pricing">Pricing</Link>
+          <Link to="/blog">Guides</Link>
           <Link to="/library">Library</Link>
           <Link to="/settings">Settings</Link>
           <Link to="/trust">Trust</Link>

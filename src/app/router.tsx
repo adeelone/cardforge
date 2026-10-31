@@ -18,7 +18,9 @@ import {
   PricingRoute,
   LoginRoute,
   AccountRoute,
-  CheckoutRoute
+  CheckoutRoute,
+  BlogIndexRoute,
+  BlogPostRoute
 } from './lazy-routes';
 
 
@@ -39,6 +41,8 @@ export function createAppRouter() {
           { path: 'templates', element: <TemplatesRoute /> },
           { path: 'library', element: <LibraryRoute /> },
           { path: 'c/:slug', element: <PublicCardRoute /> },
+          { path: 'blog', element: <BlogIndexRoute /> },
+          { path: 'blog/:slug', element: <BlogPostRoute /> },
           { path: 'settings', element: <SettingsRoute /> },
           { path: 'trust', element: <TrustRoute /> },
           { path: 'organizations', element: <OrganizationsRoute /> },

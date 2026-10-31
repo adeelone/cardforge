@@ -108,7 +108,7 @@ test('digital cards keep private data out of the request query', async ({ contex
 });
 
 test('public routes expose distinct crawlable metadata and one primary heading', async ({ page }) => {
-  const routes = ['/', '/templates', '/organizations', '/pricing', '/trust', '/privacy', '/terms', '/accessibility', '/help'];
+  const routes = ['/', '/templates', '/organizations', '/pricing', '/blog', '/blog/business-card-size-and-bleed', '/trust', '/privacy', '/terms', '/accessibility', '/help'];
   const titles = new Set<string>();
 
   for (const route of routes) {
@@ -161,4 +161,36 @@ test('pricing compares plans and local-only builds explain cloud availability', 
   await expect(page.getByRole('table')).toContainText('Custom link');
   await page.goto('/login');
   await expect(page.getByRole('heading', { name: 'Accounts aren’t enabled here' })).toBeVisible();
+});
+
+test('guides are readable without JavaScript and crawlers get discovery files', async ({ browser, request }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('/blog/digital-business-card-qr-code');
+  await expect(page.locator('h1')).toHaveText(/Digital Business Card with a QR Code/);
+  await expect(page.locator('.post-body')).toContainText('How big should a QR code be');
+  await page.goto('/pricing');
+  await expect(page.getByRole('heading', { name: 'Simple plans for every introduction.' })).toBeVisible();
+  const ld = JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? '{}');
+  expect(ld['@graph'].map((node: { '@type': string }) => node['@type'])).toContain('FAQPage');
+  await context.close();
+
+  const robots = await (await request.get('/robots.txt')).text();
+  expect(robots).toContain('User-agent: GPTBot');
+  expect(robots).toContain('User-agent: ClaudeBot');
+  expect(robots).toMatch(/Sitemap: .*\/sitemap\.xml/);
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  expect(sitemap).toContain('/blog/business-card-size-and-bleed</loc><lastmod>');
+  expect(sitemap).not.toContain('/account');
+  expect(await (await request.get('/llms.txt')).text()).toContain('free business card maker');
+  expect((await request.get('/rss.xml')).ok()).toBe(true);
+});
+
+test('blog index links to every guide and articles render in the app', async ({ page }) => {
+  await page.goto('/blog');
+  await expect(page.getByRole('heading', { name: 'Business card guides' })).toBeVisible();
+  await page.getByRole('link', { name: /What to Put on a Business Card/ }).first().click();
+  await expect(page).toHaveURL(/\/blog\/what-to-put-on-a-business-card$/);
+  await expect(page).toHaveTitle(/What to Put on a Business Card in 2026/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/blog\/what-to-put-on-a-business-card$/);
 });

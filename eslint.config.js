@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results'] },
+  { ignores: ['dist', 'dist-ssr', 'coverage', 'playwright-report', 'test-results'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -23,6 +23,11 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }]
     }
+  },
+  {
+    // Build-time server entry: never hot-reloaded, so Fast Refresh rules don't apply.
+    files: ['src/prerender.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' }
   },
   {
     files: ['public/sw.js'],

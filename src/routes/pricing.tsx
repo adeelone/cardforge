@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Check, Minus, Sparkles } from 'lucide-react';
 import { cloudEnabled } from '../lib/cloud/client';
 import { useSession } from '../lib/cloud/session';
-import { formatPrice, PLAN_ORDER, PLANS, type PlanTier } from '../lib/plans';
+import { formatPrice, PLAN_ORDER, PLANS, PRICING_FAQ, type PlanTier } from '../lib/plans';
 
 const COMPARISON: { label: string; value: (tier: PlanTier) => string | boolean }[] = [
   { label: 'Designs saved on this device', value: () => 'Unlimited' },
@@ -17,12 +17,6 @@ const COMPARISON: { label: string; value: (tier: PlanTier) => string | boolean }
   { label: 'No CardForge badge on digital cards', value: (tier) => PLANS[tier].limits.remove_badge }
 ];
 
-const FAQ = [
-  ['Do I need an account?', 'No. Designing, printing, exporting, and fragment share links all work without one. An account adds sync, hosted short links, and analytics.'],
-  ['What happens if I downgrade?', 'Nothing is deleted. Cards over your new sync limit stay on your devices, and live cards keep working; you just can’t add more until you’re under the limit.'],
-  ['What do analytics collect?', 'Only a count of views per card per day. No IP addresses, cookies, device fingerprints, or referrers are stored.'],
-  ['Can I cancel any time?', 'Yes. Your plan stays active until the end of the billing period, then returns to Free.']
-] as const;
 
 export function PricingRoute() {
   const status = useSession((state) => state.status);
@@ -99,7 +93,7 @@ export function PricingRoute() {
       <section className="faq" aria-labelledby="faq-heading">
         <h2 id="faq-heading">Questions</h2>
         <div className="faq-grid">
-          {FAQ.map(([question, answer]) => (
+          {PRICING_FAQ.map(([question, answer]) => (
             <article key={question}><h3>{question}</h3><p>{answer}</p></article>
           ))}
         </div>

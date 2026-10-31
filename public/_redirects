@@ -1,3 +1,4 @@
-/design/* /index.html 200
-/c/* /index.html 200
-/checkout/* /index.html 200
+/design/* /app.html 200
+/c/* /app.html 200
+/checkout/* /app.html 200
+/blog/* /app.html 200

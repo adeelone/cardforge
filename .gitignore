@@ -16,3 +16,4 @@ Thumbs.db
 *.tsbuildinfo
 *.cardforge.json
 dev-server*.log
+dist-ssr
